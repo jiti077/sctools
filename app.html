@@ -3,19 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SC TOOLS - Eina Avançada de Gràfics Científics (Codi Obert)</title>
+    <title>SC TOOLS - Eina de Gràfics Científics amb Desviació Estàndard</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom styling & fonts -->
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600&display=swap');
         
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #f1f5f9;
+            background-color: #f8fafc;
             color: #0f172a;
+            user-select: none;
         }
 
         /* Custom Scrollbars */
@@ -34,11 +35,12 @@
             background: #94a3b8;
         }
 
-        /* Reset de selector de color */
+        /* Color Inputs */
         input[type="color"] {
             -webkit-appearance: none;
             border: none;
             cursor: pointer;
+            padding: 0;
         }
         input[type="color"]::-webkit-color-swatch-wrapper {
             padding: 0;
@@ -48,103 +50,103 @@
             border-radius: 0.375rem;
         }
 
-        /* Estils de taula d'edició */
+        /* Excel-like Table Inputs */
         .excel-table input {
             border: 1px solid transparent;
             transition: all 0.15s ease;
         }
         .excel-table input:focus {
-            border-color: #059669;
+            border-color: #10b981;
             outline: none;
-            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+            box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.2);
             background-color: #ffffff;
         }
 
+        /* Tab Active States */
         .tab-btn.active {
-            border-bottom: 3px solid #10b981;
+            border-bottom: 2px solid #059669;
             color: #047857;
             font-weight: 600;
             background-color: #ecfdf5;
         }
 
-        /* Toast Notifications */
-        #toast-container {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            z-index: 9999;
-        }
-
-        /* Menu desplegable estils */
+        /* Dropdown Menus */
         .dropdown-menu {
             display: none;
         }
         .dropdown-parent:hover .dropdown-menu {
             display: block;
         }
+
+        /* Modal Overlay */
+        .modal-overlay {
+            background-color: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(2px);
+        }
     </style>
 </head>
 <body class="h-screen flex flex-col overflow-hidden bg-slate-100">
 
-    <!-- Top Application Menu & Header -->
+    <!-- Application Header & Main Menu -->
     <header class="bg-slate-900 text-white shadow-md flex-shrink-0 z-30">
-        <!-- Main Top Bar -->
-        <div class="px-5 py-2.5 flex items-center justify-between border-b border-slate-800">
+        <!-- Top Title Bar -->
+        <div class="px-4 py-2 flex items-center justify-between border-b border-slate-800">
             <div class="flex items-center space-x-3">
-                <div class="bg-emerald-500 text-slate-950 font-black px-3 py-1 rounded-lg text-base tracking-wider flex items-center gap-2 shadow-sm">
-                    <i class="fa-solid fa-chart-column text-lg"></i>
+                <div class="bg-gradient-to-r from-emerald-500 to-teal-600 text-slate-950 font-black px-3 py-1 rounded-lg text-sm tracking-wider flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-chart-column text-base"></i>
                     SC TOOLS
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-xs font-semibold text-slate-200 leading-none">Eina de Gràfics amb Desviació Estàndard</h1>
-                        <span class="bg-slate-800 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full">v2.5 Open Source</span>
+                        <h1 class="text-xs font-bold text-slate-200 leading-none">Generador de Gràfics Científics amb Desviació Estàndard</h1>
+                        <span class="bg-slate-800 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full">v3.0 Open Source</span>
                     </div>
-                    <p class="text-[11px] text-slate-400 mt-0.5">Llicència Lliure MIT • Entorn de Treball Net</p>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Escalat Dinàmic d'Eixos i Algorisme Intel·ligent de 'Nice Numbers' • Llicència MIT</p>
                 </div>
             </div>
 
+            <!-- Quick Action Toolbar -->
             <div class="flex items-center space-x-2">
-                <button onclick="createNewChart()" class="px-3 py-1.5 text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                <button onclick="createNewChart()" class="px-3 py-1.5 text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition flex items-center gap-1.5 shadow-sm">
                     <i class="fa-solid fa-plus"></i>
                     Nou Gràfic
                 </button>
                 <button onclick="exportJSONProject()" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center gap-1.5">
-                    <i class="fa-solid fa-download"></i>
+                    <i class="fa-solid fa-floppy-disk"></i>
                     Desar Projecte
                 </button>
                 <label class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center gap-1.5 cursor-pointer">
-                    <i class="fa-solid fa-upload"></i>
+                    <i class="fa-solid fa-folder-open"></i>
                     Carregar Projecte
                     <input type="file" id="importProjectInput" accept=".json" class="hidden" onchange="importJSONProject(event)">
                 </label>
                 <div class="h-5 w-px bg-slate-800 mx-1"></div>
-                <button onclick="loadSampleData()" class="px-2.5 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 rounded-lg transition flex items-center gap-1.5" title="Carregar dades de prova només si ho necessites">
-                    <i class="fa-solid fa-flask"></i>
+                <button onclick="loadSampleData()" class="px-2.5 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 rounded-lg transition flex items-center gap-1.5" title="Carregar dades de prova opcionalment">
+                    <i class="fa-solid fa-vial"></i>
                     Carregar Exemple
                 </button>
             </div>
         </div>
 
-        <!-- Sub Bar Menu Desktop Style -->
-        <div class="px-5 py-1 bg-slate-950 flex items-center text-xs text-slate-300 space-x-4 border-b border-slate-800/60 font-medium">
+        <!-- Desktop Navigation Bar -->
+        <div class="px-4 py-1 bg-slate-950 flex items-center text-xs text-slate-300 space-x-4 border-b border-slate-800/80 font-medium">
             <!-- Menú Fitxer -->
             <div class="relative dropdown-parent py-1 cursor-pointer hover:text-white flex items-center gap-1">
                 <span><i class="fa-regular fa-folder mr-1"></i>Fitxer</span>
                 <i class="fa-solid fa-chevron-down text-[9px] text-slate-500"></i>
-                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-48 py-1.5 z-50 mt-1">
+                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-52 py-1.5 z-50 mt-1">
                     <button onclick="createNewChart()" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-file-plus text-emerald-400"></i> Nou Gràfic
+                        <i class="fa-solid fa-file-circle-plus text-emerald-400"></i> Nou Gràfic
                     </button>
                     <button onclick="clearAllData()" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-rose-400 flex items-center gap-2">
-                        <i class="fa-solid fa-trash-can"></i> Netejar Tot
+                        <i class="fa-solid fa-trash-can"></i> Netejar Espai de Treball
                     </button>
                     <div class="border-t border-slate-800 my-1"></div>
                     <button onclick="exportJSONProject()" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i> Desar Projecte (.json)
+                        <i class="fa-solid fa-download"></i> Exportar JSON
                     </button>
                     <label class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2 cursor-pointer">
-                        <i class="fa-solid fa-folder-open"></i> Obrir Projecte (.json)
+                        <i class="fa-solid fa-upload"></i> Importar JSON
                         <input type="file" accept=".json" class="hidden" onchange="importJSONProject(event)">
                     </label>
                 </div>
@@ -154,7 +156,7 @@
             <div class="relative dropdown-parent py-1 cursor-pointer hover:text-white flex items-center gap-1">
                 <span><i class="fa-regular fa-pen-to-square mr-1"></i>Edició</span>
                 <i class="fa-solid fa-chevron-down text-[9px] text-slate-500"></i>
-                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-52 py-1.5 z-50 mt-1">
+                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-56 py-1.5 z-50 mt-1">
                     <button onclick="duplicateCurrentChart()" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2">
                         <i class="fa-solid fa-clone text-emerald-400"></i> Duplicar Gràfic Actual
                     </button>
@@ -168,39 +170,40 @@
             <div class="relative dropdown-parent py-1 cursor-pointer hover:text-white flex items-center gap-1">
                 <span><i class="fa-regular fa-eye mr-1"></i>Vista</span>
                 <i class="fa-solid fa-chevron-down text-[9px] text-slate-500"></i>
-                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-48 py-1.5 z-50 mt-1">
+                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-52 py-1.5 z-50 mt-1">
                     <button onclick="setViewMode('single')" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2">
                         <i class="fa-solid fa-chart-simple text-blue-400"></i> Mode Gràfic Únic
                     </button>
                     <button onclick="setViewMode('matrix')" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2">
-                        <i class="fa-solid fa-grip text-emerald-400"></i> Mode Matriu Agrupada
+                        <i class="fa-solid fa-border-all text-emerald-400"></i> Mode Matriu Agrupada
                     </button>
                 </div>
             </div>
 
-            <!-- Menú Codi Obert / Info -->
+            <!-- Menú Ajuda & Quant a -->
             <div class="relative dropdown-parent py-1 cursor-pointer hover:text-white flex items-center gap-1">
-                <span><i class="fa-solid fa-code-branch mr-1 text-emerald-400"></i>Codi Obert</span>
+                <span><i class="fa-solid fa-circle-info mr-1 text-emerald-400"></i>Quant a...</span>
                 <i class="fa-solid fa-chevron-down text-[9px] text-slate-500"></i>
-                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-60 py-2 px-3 z-50 mt-1 text-slate-300">
-                    <p class="font-bold text-white text-xs mb-1">SC TOOLS v2.5</p>
-                    <p class="text-[11px] text-slate-400 leading-tight mb-2">Projecte lliure i d'espai de treball buit per a recerca científica i acadèmica.</p>
-                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-emerald-400 flex justify-between">
-                        <span>Llicència MIT</span>
-                        <span>Sense Servidors / 100% Local</span>
+                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-72 py-2 px-3 z-50 mt-1 text-slate-300">
+                    <p class="font-bold text-white text-xs mb-1">SC TOOLS v3.0 (Codi Obert)</p>
+                    <p class="text-[11px] text-slate-400 leading-tight mb-2">Eina de renderitzat vectorial en temps real dissenyada per a publicacions científiques, tesis i informes acadèmics.</p>
+                    <div class="border-t border-slate-800 pt-2 text-[10px] text-slate-400 space-y-1">
+                        <div>• Llicència: <span class="text-emerald-400 font-mono">MIT Open Source</span></div>
+                        <div>• Algorisme d'Eixos: <span class="text-emerald-400 font-mono">Nice Numbers & Dynamic Padding</span></div>
+                        <div>• 100% Execució Local en el Navegador</div>
                     </div>
                 </div>
             </div>
         </div>
     </header>
 
-    <!-- Main Workspace -->
+    <!-- Main Content Workspace -->
     <div class="flex-1 flex overflow-hidden">
         
-        <!-- Left Panel: Controls & Data Editor -->
-        <aside class="w-full md:w-[490px] lg:w-[550px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0 shadow-lg z-10">
+        <!-- Left Sidebar - Control Panel & Data Editor -->
+        <aside class="w-full md:w-[480px] lg:w-[540px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0 shadow-lg z-10">
             
-            <!-- Tab Header Navigation -->
+            <!-- Tab Headers -->
             <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-medium text-slate-600">
                 <button onclick="switchTab('editor')" id="tab-btn-editor" class="tab-btn active flex-1 py-3 px-2 text-center transition flex items-center justify-center gap-1.5">
                     <i class="fa-solid fa-pen-to-square"></i>
@@ -211,23 +214,23 @@
                     2. Estil i Desviació (SD)
                 </button>
                 <button onclick="switchTab('matrix')" id="tab-btn-matrix" class="tab-btn flex-1 py-3 px-2 text-center transition flex items-center justify-center gap-1.5">
-                    <i class="fa-solid fa-table-cells"></i>
-                    3. Matriu Agrupada
+                    <i class="fa-solid fa-grid-2 text-emerald-600"></i>
+                    3. Matriu Combinada
                 </button>
             </div>
 
             <!-- Tab Content Area -->
             <div class="flex-1 overflow-y-auto p-4 space-y-5">
 
-                <!-- TAB 1: DATA EDITOR -->
-                <div id="tab-content-editor" class="space-y-5">
+                <!-- TAB 1: DATA EDITOR & AXES CONFIG -->
+                <div id="tab-content-editor" class="space-y-4">
                     
                     <!-- Chart Selector / Navigation -->
-                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-2.5">
                         <div class="flex items-center justify-between">
                             <label class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                                 <i class="fa-solid fa-list-check text-emerald-600"></i>
-                                Selecciona el Gràfic a Editar
+                                Selecció de Gràfic actiu
                             </label>
                             <span id="chart-count-badge" class="text-[11px] bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-0.5 rounded-full">
                                 0 Gràfics
@@ -247,66 +250,78 @@
                         </div>
                     </div>
 
-                    <!-- Chart Meta Properties -->
+                    <!-- Chart Text & Axes Metadata -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center justify-between">
-                            <span><i class="fa-solid fa-heading text-slate-400 mr-1.5"></i> Textos i Configuració dels Eixos</span>
+                            <span><i class="fa-solid fa-heading text-slate-400 mr-1.5"></i> Textos dels Eixos i Títols</span>
                         </h3>
 
                         <div class="grid grid-cols-1 gap-3">
                             <div>
                                 <label class="block text-[11px] font-semibold text-slate-600 mb-1">Títol del Gràfic</label>
-                                <input type="text" id="chart-title-input" placeholder="Ex: A) Activitat Enzimàtica" oninput="updateChartMeta()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
+                                <input type="text" id="chart-title-input" placeholder="Ex: A) Nivells de Proteïna Total" oninput="updateChartMeta()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500">
                             </div>
                             
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Etiqueta Eix X (Categories)</label>
-                                    <input type="text" id="chart-xlabel-input" placeholder="Ex: Tractament" oninput="updateChartMeta()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
+                                    <input type="text" id="chart-xlabel-input" placeholder="Ex: Condicions" oninput="updateChartMeta()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500">
                                 </div>
                                 <div>
                                     <label class="block text-[11px] font-semibold text-slate-600 mb-1">Etiqueta Eix Y (Valors/Unitats)</label>
-                                    <input type="text" id="chart-ylabel-input" placeholder="Ex: Concentració (µM)" oninput="updateChartMeta()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
+                                    <input type="text" id="chart-ylabel-input" placeholder="Ex: Concentració (mg/mL)" oninput="updateChartMeta()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500">
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Y Axis Range Options -->
-                        <div class="pt-2 border-t border-slate-100">
-                            <div class="flex items-center justify-between mb-2">
-                                <span class="text-[11px] font-semibold text-slate-600">Escala de l'Eix Y</span>
+                        <!-- Dynamic Y-Axis Scaling Configuration -->
+                        <div class="pt-3 border-t border-slate-100 space-y-2">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-1.5">
+                                    <i class="fa-solid fa-wand-magic-sparkles text-emerald-600 text-xs"></i>
+                                    <span class="text-xs font-bold text-slate-700">Escala de l'Eix Y</span>
+                                </div>
+
                                 <label class="inline-flex items-center cursor-pointer">
                                     <input type="checkbox" id="chart-yauto-checkbox" onchange="toggleYAuto()" class="sr-only peer" checked>
                                     <div class="w-8 h-4 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600"></div>
-                                    <span class="ml-2 text-[11px] font-medium text-slate-600">Automàtica</span>
+                                    <span class="ml-2 text-[11px] font-semibold text-slate-700">Automàtica (Intel·ligent)</span>
                                 </label>
                             </div>
 
-                            <div id="manual-y-container" class="grid grid-cols-3 gap-2 hidden">
+                            <p class="text-[10px] text-slate-500 leading-tight">
+                                L'escala automàtica calcula la fita màxima afegint un 15% de límit de seguretat sobre la barra + desviació estàndard i aplica l'algorisme de números nets (*Nice Numbers*).
+                            </p>
+
+                            <!-- Manual Override Fields -->
+                            <div id="manual-y-container" class="grid grid-cols-3 gap-2 pt-1 hidden">
                                 <div>
-                                    <label class="block text-[10px] text-slate-500 mb-0.5">Mínim</label>
+                                    <label class="block text-[10px] font-medium text-slate-500 mb-0.5">Mínim Y</label>
                                     <input type="number" id="chart-ymin-input" step="any" oninput="updateChartMeta()" class="w-full text-xs p-1.5 border border-slate-300 rounded-md">
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] text-slate-500 mb-0.5">Màxim</label>
+                                    <label class="block text-[10px] font-medium text-slate-500 mb-0.5">Màxim Y</label>
                                     <input type="number" id="chart-ymax-input" step="any" oninput="updateChartMeta()" class="w-full text-xs p-1.5 border border-slate-300 rounded-md">
                                 </div>
                                 <div>
-                                    <label class="block text-[10px] text-slate-500 mb-0.5">Pas / Ticks</label>
+                                    <label class="block text-[10px] font-medium text-slate-500 mb-0.5">Pas (Interval)</label>
                                     <input type="number" id="chart-ystep-input" step="any" oninput="updateChartMeta()" class="w-full text-xs p-1.5 border border-slate-300 rounded-md" placeholder="Auto">
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Interactive Data Table -->
+                    <!-- Interactive Bars Data Table -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                                <i class="fa-solid fa-table text-slate-400"></i>
-                                Barras i Valors (&plusmn; Desviació SD)
-                            </h3>
-                            <button onclick="addBarRow()" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-semibold px-2.5 py-1 rounded-md transition flex items-center gap-1">
+                            <div>
+                                <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                    <i class="fa-solid fa-table text-slate-400"></i>
+                                    Dades de les Barras i Desviació SD
+                                </h3>
+                                <p class="text-[10px] text-slate-400">Defineix cada barra amb el seu valor Y i la seva desviació &plusmn; SD individual.</p>
+                            </div>
+                            <button onclick="addBarRow()" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-semibold px-2.5 py-1 rounded-md transition flex items-center gap-1 shadow-sm">
                                 <i class="fa-solid fa-plus text-[10px]"></i> Afegir Barra
                             </button>
                         </div>
@@ -314,8 +329,8 @@
                         <div class="overflow-x-auto">
                             <table class="w-full text-left text-xs excel-table border-collapse">
                                 <thead>
-                                    <tr class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
-                                        <th class="py-2 px-2">Categoria (Eix X)</th>
+                                    <tr class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200 text-[11px]">
+                                        <th class="py-2 px-2">Nom / Categoria (Eix X)</th>
                                         <th class="py-2 px-2 w-20">Valor (Y)</th>
                                         <th class="py-2 px-2 w-24">Desv. SD (&plusmn;)</th>
                                         <th class="py-2 px-2 w-10 text-center">Color</th>
@@ -332,18 +347,18 @@
                 </div>
 
                 <!-- TAB 2: STYLING & ERROR BARS -->
-                <div id="tab-content-styling" class="space-y-5 hidden">
+                <div id="tab-content-styling" class="space-y-4 hidden">
                     
-                    <!-- Color Palette Presets -->
+                    <!-- Color Palette Selection -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center gap-1.5">
                             <i class="fa-solid fa-palette text-slate-400"></i>
-                            Paletes de Color Estil Excel / Científic
+                            Paletes de Colors Científics i Excel
                         </h3>
 
                         <div class="grid grid-cols-2 gap-2.5">
                             <button onclick="applyPalette('office')" class="p-2 border border-slate-200 rounded-lg hover:border-emerald-500 text-left transition bg-slate-50">
-                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Blau Office (Predeterminat)</div>
+                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Blau Modern Excel</div>
                                 <div class="flex h-3 rounded overflow-hidden">
                                     <span class="flex-1 bg-[#4472C4]"></span>
                                     <span class="flex-1 bg-[#ED7D31]"></span>
@@ -353,7 +368,7 @@
                             </button>
 
                             <button onclick="applyPalette('classic')" class="p-2 border border-slate-200 rounded-lg hover:border-emerald-500 text-left transition bg-slate-50">
-                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Excel Clàssic Obscur</div>
+                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Excel Clàssic Corporatiu</div>
                                 <div class="flex h-3 rounded overflow-hidden">
                                     <span class="flex-1 bg-[#1F4E78]"></span>
                                     <span class="flex-1 bg-[#2F5597]"></span>
@@ -372,8 +387,18 @@
                                 </div>
                             </button>
 
-                            <button onclick="applyPalette('mono')" class="p-2 border border-slate-200 rounded-lg hover:border-emerald-500 text-left transition bg-slate-50">
-                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Monocromàtic / Escala Grisos</div>
+                            <button onclick="applyPalette('pastels')" class="p-2 border border-slate-200 rounded-lg hover:border-emerald-500 text-left transition bg-slate-50">
+                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Pastís Suau</div>
+                                <div class="flex h-3 rounded overflow-hidden">
+                                    <span class="flex-1 bg-[#6baed6]"></span>
+                                    <span class="flex-1 bg-[#fc9272]"></span>
+                                    <span class="flex-1 bg-[#74c476]"></span>
+                                    <span class="flex-1 bg-[#9e9ac8]"></span>
+                                </div>
+                            </button>
+
+                            <button onclick="applyPalette('mono')" class="p-2 border border-slate-200 rounded-lg hover:border-emerald-500 text-left transition bg-slate-50 col-span-2">
+                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Monocromàtic / Escala de Grisos para Publicació Impressa</div>
                                 <div class="flex h-3 rounded overflow-hidden">
                                     <span class="flex-1 bg-[#262626]"></span>
                                     <span class="flex-1 bg-[#595959]"></span>
@@ -388,13 +413,13 @@
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center gap-1.5">
                             <i class="fa-solid fa-sliders text-slate-400"></i>
-                            Ajusts de Barras de Error (&plusmn; SD T-Cap)
+                            Ajusts de les Barras de Error (&plusmn; SD)
                         </h3>
 
                         <div class="space-y-3">
                             <div>
                                 <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
-                                    <span>Amplada del T-Cap (Tapó Superior/Inferior)</span>
+                                    <span>Amplada del T-Cap (Topall Superior/Inferior)</span>
                                     <span id="cap-width-val" class="font-bold text-slate-800">12 px</span>
                                 </div>
                                 <input type="range" id="cap-width-slider" min="4" max="30" value="12" oninput="updateErrorSettings()" class="w-full accent-emerald-600">
@@ -402,7 +427,7 @@
 
                             <div>
                                 <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
-                                    <span>Gruix de Línea d'Error</span>
+                                    <span>Gruix del Traç d'Error</span>
                                     <span id="line-width-val" class="font-bold text-slate-800">2.0 px</span>
                                 </div>
                                 <input type="range" id="line-width-slider" min="1" max="5" step="0.5" value="2" oninput="updateErrorSettings()" class="w-full accent-emerald-600">
@@ -410,39 +435,39 @@
 
                             <div class="grid grid-cols-2 gap-3 pt-2">
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Color de Barras d'Error</label>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Color de les Barras d'Error</label>
                                     <select id="error-color-mode" onchange="updateErrorSettings()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
                                         <option value="#000000">Negre Sòlid (#000000)</option>
-                                        <option value="#404040">Gris Obscur (#404040)</option>
-                                        <option value="match">Mateix Color de la Barra</option>
+                                        <option value="#334155">Gris Slate Obscur</option>
+                                        <option value="match">Mateix color de la barra</option>
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Modo de Dibuix</label>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Tipus de Dibuix SD</label>
                                     <select id="error-style-mode" onchange="updateErrorSettings()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
-                                        <option value="both">Complet (&plusmn; SD)</option>
-                                        <option value="top">Només Superior (+SD)</option>
+                                        <option value="both">Complet (&plusmn; SD Superior i Inferior)</option>
+                                        <option value="top">Només Superior (+ SD)</option>
                                     </select>
                                 </div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Visual Chart Gridlines & Fonts -->
+                    <!-- Visual Chart Gridlines & Value Labels -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2">
-                            Línies de Retícula i Valors
+                            Línies de Retícula i Etiquetes
                         </h3>
                         <div class="grid grid-cols-2 gap-3">
                             <label class="flex items-center gap-2 cursor-pointer">
                                 <input type="checkbox" id="show-gridlines-check" onchange="updateVisualSettings()" checked class="rounded text-emerald-600 focus:ring-emerald-500">
-                                <span class="text-xs text-slate-600 font-medium">Línies Horitzontals</span>
+                                <span class="text-xs text-slate-700 font-medium">Retícula Horitzontal</span>
                             </label>
 
                             <label class="flex items-center gap-2 cursor-pointer">
-                                <input type="checkbox" id="show-values-check" onchange="updateVisualSettings()" class="rounded text-emerald-600 focus:ring-emerald-500">
-                                <span class="text-xs text-slate-600 font-medium">Valors sobre les Barras</span>
+                                <input type="checkbox" id="show-values-check" onchange="updateVisualSettings()" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                                <span class="text-xs text-slate-700 font-medium">Valors Numèrics sobre les Barres</span>
                             </label>
                         </div>
                     </div>
@@ -450,14 +475,14 @@
                 </div>
 
                 <!-- TAB 3: MATRIX & GROUPING -->
-                <div id="tab-content-matrix" class="space-y-5 hidden">
+                <div id="tab-content-matrix" class="space-y-4 hidden">
                     
                     <!-- Preset Layout Grid Selector -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center justify-between">
-                            <span><i class="fa-solid fa-border-all text-slate-400 mr-1.5"></i> Distribució de la Matriu</span>
+                            <span><i class="fa-solid fa-border-all text-emerald-600 mr-1.5"></i> Distribució de la Matriu</span>
                             <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">
-                                Exportació Multiple
+                                Agrupador Multi-Gràfic
                             </span>
                         </h3>
 
@@ -472,16 +497,16 @@
                                 2 x 2
                             </button>
                             <button onclick="setMatrixGrid(2,3)" class="p-2 border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-bold rounded-lg text-xs shadow-sm">
-                                2 x 3 (3 Arriba, 3 Abajo)
+                                2 x 3 (3 a dalt, 3 a baix)
                             </button>
                             <button onclick="setMatrixGrid(3,1)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
                                 3 x 1
                             </button>
+                            <button onclick="setMatrixGrid(3,2)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
+                                3 x 2
+                            </button>
                             <button onclick="setMatrixGrid(3,3)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
                                 3 x 3
-                            </button>
-                            <button onclick="setMatrixGrid(2,4)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
-                                2 x 4
                             </button>
                             <button onclick="setMatrixGrid(4,2)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
                                 4 x 2
@@ -492,30 +517,35 @@
                     <!-- Figure Global Titles -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2">
-                            Títol General de la Figura / Assaig
+                            Títols Globals de la Figura Combinada
                         </h3>
 
                         <div class="space-y-2">
                             <div>
-                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Títol de la Matriu Completa</label>
-                                <input type="text" id="matrix-title-input" placeholder="Ex: Figura 1: Comparativa de Respuestas Biológicas" oninput="updateMatrixSettings()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Títol Principal de la Figura</label>
+                                <input type="text" id="matrix-title-input" placeholder="Ex: Figura 1: Avaluació de Paràmetres Biològics" oninput="updateMatrixSettings()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
                             </div>
                             <div>
-                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Subtítol o Llegenda Inferior</label>
-                                <input type="text" id="matrix-subtitle-input" placeholder="Ex: Valors representats com Mitjana ± Desviació Estàndard (SD)." oninput="updateMatrixSettings()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Peu de Figura / Llegenda Explicativa</label>
+                                <input type="text" id="matrix-subtitle-input" placeholder="Ex: Dades representades com a Mitjana ± Desviació Estàndard (SD) per a cada condició." oninput="updateMatrixSettings()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
                             </div>
+
+                            <label class="flex items-center gap-2 pt-1 cursor-pointer">
+                                <input type="checkbox" id="matrix-badges-check" onchange="updateMatrixSettings()" checked class="rounded text-emerald-600">
+                                <span class="text-xs text-slate-700 font-medium">Afegir Lletres Identificadores de Subgràfics (A, B, C, D...)</span>
+                            </label>
                         </div>
                     </div>
 
                     <!-- Slot Mapping Assignment -->
                     <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
                         <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center justify-between">
-                            <span>Assignació de Gràfics en Posicions</span>
+                            <span>Assignació de Gràfics a cada Posició</span>
                             <i class="fa-solid fa-arrows-rotate text-slate-400"></i>
                         </h3>
 
                         <div id="slot-mapping-container" class="grid grid-cols-1 gap-2">
-                            <!-- Populated dynamically based on matrix dimensions -->
+                            <!-- Populated dynamically -->
                         </div>
                     </div>
 
@@ -524,16 +554,16 @@
             </div>
         </aside>
 
-        <!-- Right Main Panel: Real-time Canvas Rendering & Preview -->
+        <!-- Right Main Area - Real-time Preview Canvas -->
         <main class="flex-1 flex flex-col bg-slate-200 overflow-hidden relative">
             
-            <!-- Toolbar Preview Bar -->
+            <!-- Toolbar Control Bar -->
             <div class="bg-white border-b border-slate-300 px-6 py-2.5 flex items-center justify-between shadow-sm z-10 flex-shrink-0">
                 
                 <div class="flex items-center space-x-3">
                     <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
                         <i class="fa-solid fa-eye text-emerald-600"></i>
-                        Mode de Visualització:
+                        Vista de Previsualització:
                     </span>
 
                     <div class="bg-slate-100 p-1 rounded-lg border border-slate-300 flex space-x-1">
@@ -541,18 +571,22 @@
                             <i class="fa-solid fa-chart-simple mr-1"></i> Gràfic Únic
                         </button>
                         <button onclick="setViewMode('matrix')" id="view-mode-matrix-btn" class="px-3 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 transition">
-                            <i class="fa-solid fa-grip mr-1"></i> Matriu Agrupada (<span id="matrix-badge-text">2x2</span>)
+                            <i class="fa-solid fa-border-all mr-1"></i> Matriu Agrupada (<span id="matrix-badge-text">2x2</span>)
                         </button>
                     </div>
                 </div>
 
-                <!-- Export Controls -->
+                <!-- Export & Resolution Options -->
                 <div class="flex items-center space-x-2">
-                    <select id="export-res-select" class="text-xs bg-slate-50 border border-slate-300 rounded-lg p-1.5 font-medium">
-                        <option value="2">Qualitat HD (2x Retina)</option>
-                        <option value="3">Qualitat Impressió (3x Ultra HD)</option>
-                        <option value="1">Estàndard (1x Estàndard Pantalla)</option>
-                    </select>
+                    <div class="flex items-center gap-1 text-xs text-slate-600 font-medium mr-1">
+                        <i class="fa-solid fa-expand text-slate-400"></i>
+                        <select id="export-res-select" onchange="renderCanvas()" class="bg-slate-50 border border-slate-300 rounded-lg p-1.5 font-medium text-xs">
+                            <option value="2">2x Retina (HD Publicació)</option>
+                            <option value="3" selected>3x Ultra HD (Ultra Alta Resolució)</option>
+                            <option value="4">4x 300 DPI Impressió</option>
+                            <option value="1">1x Pantalla Estàndard</option>
+                        </select>
+                    </div>
 
                     <button onclick="exportCanvasImage('png')" class="px-3.5 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition shadow flex items-center gap-1.5">
                         <i class="fa-solid fa-file-image"></i>
@@ -561,28 +595,34 @@
                 </div>
             </div>
 
-            <!-- Canvas Display Area -->
-            <div class="flex-1 overflow-auto p-6 flex items-center justify-center relative">
-                <div class="bg-white p-4 rounded-xl shadow-2xl border border-slate-300 max-w-full max-h-full overflow-auto flex items-center justify-center">
+            <!-- Canvas Rendering Container -->
+            <div class="flex-1 overflow-auto p-6 flex items-center justify-center relative bg-slate-200/80">
+                <div class="bg-white p-5 rounded-xl shadow-2xl border border-slate-300 max-w-full max-h-full overflow-auto flex items-center justify-center">
                     <!-- High resolution render canvas -->
-                    <canvas id="mainChartCanvas" class="max-w-full h-auto block rounded"></canvas>
+                    <canvas id="mainChartCanvas" class="max-w-full h-auto block rounded shadow-sm"></canvas>
                 </div>
             </div>
 
-            <!-- Bottom Status Indicator -->
-            <footer class="bg-white border-t border-slate-200 px-6 py-1.5 text-[11px] text-slate-500 flex justify-between items-center">
-                <span>SC TOOLS • Renderitzat vectorial en temps real en Català</span>
-                <span class="font-mono text-slate-400" id="canvas-dimensions-label">Mida del Canvas: -- x -- px</span>
+            <!-- Bottom Status Bar -->
+            <footer class="bg-white border-t border-slate-200 px-6 py-1.5 text-[11px] text-slate-500 flex justify-between items-center flex-shrink-0">
+                <div class="flex items-center gap-3">
+                    <span class="flex items-center gap-1.5 font-semibold text-emerald-700">
+                        <i class="fa-solid fa-circle-check text-emerald-500"></i> SC TOOLS v3.0
+                    </span>
+                    <span>•</span>
+                    <span class="text-slate-500">Algorisme d'Eixos 'Nice Numbers' actiu</span>
+                </div>
+                <span class="font-mono text-slate-500 text-[10px]" id="canvas-dimensions-label">Mida del Canvas: -- x -- px</span>
             </footer>
 
         </main>
     </div>
 
-    <!-- Notification Container -->
-    <div id="toast-container"></div>
+    <!-- Notification Toast Container -->
+    <div id="toast-container" class="fixed bottom-10 right-10 z-50 flex flex-col gap-2"></div>
 
     <script>
-        // Global Application State (Entorn net de treball des de zero)
+        // Global Application State (Starts clean and empty)
         const state = {
             charts: [],
             selectedChartIndex: 0,
@@ -596,109 +636,160 @@
             },
             visualSettings: {
                 showGridlines: true,
-                showBarValues: false,
-                fontFamily: 'Inter, Segoe UI, Calibri, Arial, sans-serif'
+                showBarValues: true,
+                fontFamily: 'Inter, Segoe UI, Arial, sans-serif'
             },
             matrixSettings: {
                 rows: 2,
-                cols: 2,
+                cols: 3,
                 title: '',
                 subtitle: '',
-                spacing: 35,
+                showBadges: true,
+                spacing: 30,
                 padding: 40,
                 bgColor: '#ffffff',
-                assignments: [0, 1, 2, 3]
+                assignments: []
             }
         };
 
-        // Color Palettes
+        // Scientific & Excel Color Palettes
         const PALETTES = {
             office: ['#4472C4', '#ED7D31', '#A5A5A5', '#FFC000', '#5B9BD5', '#70AD47'],
             classic: ['#1F4E78', '#2F5597', '#385723', '#C65911', '#833C0C', '#7030A0'],
             scientific: ['#0072B2', '#E69F00', '#009E73', '#F0E442', '#D55E00', '#CC79A7'],
+            pastels: ['#6baed6', '#fc9272', '#74c476', '#9e9ac8', '#fdd0a2', '#a1d99b'],
             mono: ['#262626', '#595959', '#8C8C8C', '#BFBFBF', '#D9D9D9', '#7F7F7F']
         };
 
-        // Inicialitza un projecte net per defecte
+        // Initialize clean empty project workspace with 1 blank starter chart
         function initEmptyProject() {
             state.charts = [
                 {
-                    id: 'chart_init_1',
+                    id: 'chart_1',
                     title: 'Gràfic 1',
-                    xAxisLabel: 'Categories',
-                    yAxisLabel: 'Valor',
+                    xAxisLabel: 'Grups de Tractament',
+                    yAxisLabel: 'Concentració (µM)',
                     yAuto: true,
                     yMin: 0,
                     yMax: 10,
                     yStep: 2,
                     palette: 'office',
                     bars: [
-                        { label: 'Grup A', value: 5.0, sd: 0.5, color: '#4472C4' },
-                        { label: 'Grup B', value: 7.5, sd: 0.8, color: '#ED7D31' }
+                        { label: 'Control', value: 4.5, sd: 0.4, color: '#4472C4' },
+                        { label: 'Tractament A', value: 8.2, sd: 0.7, color: '#ED7D31' },
+                        { label: 'Tractament B', value: 11.6, sd: 1.1, color: '#A5A5A5' }
                     ]
                 }
             ];
             state.selectedChartIndex = 0;
             state.matrixSettings.rows = 2;
-            state.matrixSettings.cols = 2;
+            state.matrixSettings.cols = 3;
             state.matrixSettings.title = '';
             state.matrixSettings.subtitle = '';
-            state.matrixSettings.assignments = [0, 0, 0, 0];
+            state.matrixSettings.assignments = [0, 0, 0, 0, 0, 0];
 
             updateUI();
         }
 
-        // Carrega dades d'exemple opcionalment
+        // Load complete sample scientific project on demand
         function loadSampleData() {
             state.charts = [
                 {
                     id: 'chart_1',
-                    title: 'A) Assaig Enzimàtic A',
-                    xAxisLabel: 'Tractament',
-                    yAxisLabel: 'Activitat (µmol/min)',
+                    title: 'A) Activitat Enzimàtica A',
+                    xAxisLabel: 'Substrat',
+                    yAxisLabel: 'Velocitat (µmol/min)',
                     yAuto: true,
-                    yMin: 0,
-                    yMax: 100,
-                    yStep: 20,
+                    yMin: 0, yMax: 100, yStep: null,
                     palette: 'office',
                     bars: [
-                        { label: 'Control', value: 45.2, sd: 3.1, color: '#4472C4' },
-                        { label: 'Dosi 1mM', value: 68.5, sd: 4.8, color: '#4472C4' },
-                        { label: 'Dosi 5mM', value: 89.1, sd: 5.2, color: '#4472C4' },
-                        { label: 'Inhibidor', value: 22.4, sd: 2.0, color: '#4472C4' }
+                        { label: 'Control', value: 24.5, sd: 2.1, color: '#4472C4' },
+                        { label: 'Substrat 1', value: 48.8, sd: 3.5, color: '#4472C4' },
+                        { label: 'Substrat 2', value: 82.3, sd: 5.2, color: '#4472C4' }
                     ]
                 },
                 {
                     id: 'chart_2',
-                    title: 'B) Expressió Genètica B',
-                    xAxisLabel: 'Variant',
-                    yAxisLabel: 'Fold Change (mRNA)',
+                    title: 'B) Nivell d\'mRNA Relatiu',
+                    xAxisLabel: 'Gen',
+                    yAxisLabel: 'Fold Change',
                     yAuto: true,
-                    yMin: 0,
-                    yMax: 4,
-                    yStep: 1,
+                    yMin: 0, yMax: 5, yStep: null,
                     palette: 'office',
                     bars: [
-                        { label: 'WT', value: 1.00, sd: 0.12, color: '#ED7D31' },
-                        { label: 'Mut-A', value: 3.45, sd: 0.35, color: '#ED7D31' },
-                        { label: 'Mut-B', value: 0.62, sd: 0.08, color: '#ED7D31' },
-                        { label: 'Rescat', value: 1.15, sd: 0.15, color: '#ED7D31' }
+                        { label: 'WT', value: 1.00, sd: 0.08, color: '#ED7D31' },
+                        { label: 'Mutant A', value: 3.42, sd: 0.28, color: '#ED7D31' },
+                        { label: 'Mutant B', value: 0.55, sd: 0.06, color: '#ED7D31' }
+                    ]
+                },
+                {
+                    id: 'chart_3',
+                    title: 'C) Viabilitat Cel·lular',
+                    xAxisLabel: 'Temps (h)',
+                    yAxisLabel: '% Sobrevivència',
+                    yAuto: true,
+                    yMin: 0, yMax: 120, yStep: null,
+                    palette: 'office',
+                    bars: [
+                        { label: '0h', value: 100.0, sd: 4.2, color: '#70AD47' },
+                        { label: '24h', value: 85.4, sd: 5.1, color: '#70AD47' },
+                        { label: '48h', value: 62.1, sd: 4.8, color: '#70AD47' }
+                    ]
+                },
+                {
+                    id: 'chart_4',
+                    title: 'D) Producció de ROS',
+                    xAxisLabel: 'Estrès',
+                    yAxisLabel: 'Fluorescència (a.u.)',
+                    yAuto: true,
+                    yMin: 0, yMax: 50, yStep: null,
+                    palette: 'office',
+                    bars: [
+                        { label: 'Basal', value: 12.3, sd: 1.1, color: '#5B9BD5' },
+                        { label: 'H2O2', value: 41.7, sd: 3.8, color: '#5B9BD5' }
+                    ]
+                },
+                {
+                    id: 'chart_5',
+                    title: 'E) Massa Corporal',
+                    xAxisLabel: 'Dieta',
+                    yAxisLabel: 'Pes (g)',
+                    yAuto: true,
+                    yMin: 0, yMax: 40, yStep: null,
+                    palette: 'office',
+                    bars: [
+                        { label: 'Estàndard', value: 22.4, sd: 1.5, color: '#FFC000' },
+                        { label: 'Rica en Greix', value: 34.8, sd: 2.3, color: '#FFC000' }
+                    ]
+                },
+                {
+                    id: 'chart_6',
+                    title: 'F) Concentració Sèrica',
+                    xAxisLabel: 'Dosi',
+                    yAxisLabel: 'pg/mL',
+                    yAuto: true,
+                    yMin: 0, yMax: 500, yStep: null,
+                    palette: 'office',
+                    bars: [
+                        { label: 'Placebo', value: 15.0, sd: 2.0, color: '#A5A5A5' },
+                        { label: 'Dosi Baixa', value: 180.5, sd: 14.2, color: '#A5A5A5' },
+                        { label: 'Dosi Alta', value: 420.0, sd: 28.5, color: '#A5A5A5' }
                     ]
                 }
             ];
 
             state.selectedChartIndex = 0;
-            state.matrixSettings.rows = 1;
-            state.matrixSettings.cols = 2;
-            state.matrixSettings.title = 'Figura 1: Resultats d\'Exemple de Laboratori';
-            state.matrixSettings.subtitle = 'Valors expressats com a Mitjana ± Desviació Estàndard (SD).';
-            state.matrixSettings.assignments = [0, 1];
+            state.matrixSettings.rows = 2;
+            state.matrixSettings.cols = 3;
+            state.matrixSettings.title = 'Figura 1: Anàlisi Multiparamètric de Respostes Cel·lulars i Fisiològiques';
+            state.matrixSettings.subtitle = 'Resultats presentats com a Mitjana ± Desviació Estàndard (SD) per a n = 6 mostres independents.';
+            state.matrixSettings.assignments = [0, 1, 2, 3, 4, 5];
 
             updateUI();
-            showToast('Dades de mostra carregades correctament');
+            showToast('Dades de mostra carregades (2x3 gràfics)');
         }
 
-        // Netejar tot l'espai de treball
+        // Clear workspace
         function clearAllData() {
             state.charts = [];
             createNewChart();
@@ -898,11 +989,11 @@
                 yAuto: true,
                 yMin: 0,
                 yMax: 10,
-                yStep: 2,
+                yStep: null,
                 palette: 'office',
                 bars: [
-                    { label: 'Control', value: 4.0, sd: 0.4, color: '#4472C4' },
-                    { label: 'Tractament', value: 8.0, sd: 0.6, color: '#ED7D31' }
+                    { label: 'Grup A', value: 5.0, sd: 0.5, color: '#4472C4' },
+                    { label: 'Grup B', value: 8.5, sd: 0.9, color: '#ED7D31' }
                 ]
             };
             state.charts.push(newChart);
@@ -993,6 +1084,7 @@
         function updateMatrixSettings() {
             state.matrixSettings.title = document.getElementById('matrix-title-input').value;
             state.matrixSettings.subtitle = document.getElementById('matrix-subtitle-input').value;
+            state.matrixSettings.showBadges = document.getElementById('matrix-badges-check').checked;
             renderCanvas();
         }
 
@@ -1011,8 +1103,11 @@
                     `<option value="${idx}" ${idx === assignedIdx ? 'selected' : ''}>${idx + 1}. ${c.title || 'Gràfic'}</option>`
                 ).join('');
 
+                const rowIdx = Math.floor(i / state.matrixSettings.cols) + 1;
+                const colIdx = (i % state.matrixSettings.cols) + 1;
+
                 div.innerHTML = `
-                    <span class="font-semibold text-slate-600">Posició ${i + 1} (${Math.floor(i / state.matrixSettings.cols) + 1}, ${(i % state.matrixSettings.cols) + 1}):</span>
+                    <span class="font-semibold text-slate-700">Posició ${i + 1} (Fila ${rowIdx}, Col ${colIdx}):</span>
                     <select onchange="updateSlotAssignment(${i}, this.value)" class="bg-white border border-slate-300 rounded p-1 text-xs">
                         ${optionsHTML}
                     </select>
@@ -1026,48 +1121,76 @@
             renderCanvas();
         }
 
-        function calculateTicks(minVal, maxVal, userStep) {
+        /**
+         * NICE NUMBERS ALGORITHM (Càlcul intel·ligent d'eixos)
+         * Calculates clean steps (1, 2, 5, 10, 0.5, 0.1, etc.) preventing label overlaps.
+         */
+        function calculateNiceTicks(minVal, maxVal, userStep, availablePixelHeight) {
             if (userStep && userStep > 0) {
                 let ticks = [];
                 for (let v = minVal; v <= maxVal + 1e-6; v += userStep) {
-                    ticks.push(Number(v.toFixed(4)));
+                    ticks.push(v);
                 }
-                return ticks;
+                return { ticks, decimals: getPrecision(userStep) };
             }
 
             const range = maxVal - minVal;
-            if (range <= 0) return [0, 10];
+            if (range <= 0) return { ticks: [0, 10], decimals: 0 };
 
-            const roughStep = range / 5;
-            const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
-            const residual = roughStep / magnitude;
+            // Determine optimal number of ticks based on available pixel height (avoiding text crowding)
+            const maxAllowedTicks = Math.max(3, Math.min(7, Math.floor(availablePixelHeight / 38)));
+            const roughStep = range / (maxAllowedTicks - 1);
 
-            let step;
-            if (residual < 1.5) step = 1 * magnitude;
-            else if (residual < 3) step = 2 * magnitude;
-            else if (residual < 7) step = 5 * magnitude;
-            else step = 10 * magnitude;
+            const exponent = Math.floor(Math.log10(roughStep));
+            const fraction = roughStep / Math.pow(10, exponent);
 
-            const niceMin = Math.floor(minVal / step) * step;
-            const niceMax = Math.ceil(maxVal / step) * step;
+            let niceFraction;
+            if (fraction < 1.5) niceFraction = 1;
+            else if (fraction < 3) niceFraction = 2;
+            else if (fraction < 7) niceFraction = 5;
+            else niceFraction = 10;
+
+            const niceStep = niceFraction * Math.pow(10, exponent);
+
+            const niceMin = Math.floor(minVal / niceStep) * niceStep;
+            const niceMax = Math.ceil(maxVal / niceStep) * niceStep;
 
             let ticks = [];
-            for (let v = niceMin; v <= niceMax + step * 0.01; v += step) {
-                ticks.push(Number(v.toFixed(4)));
+            for (let v = niceMin; v <= niceMax + niceStep * 0.001; v += niceStep) {
+                ticks.push(v);
             }
-            return ticks;
+
+            const decimals = getPrecision(niceStep);
+            return { ticks, decimals };
+        }
+
+        function getPrecision(num) {
+            if (Math.abs(num - Math.round(num)) < 1e-6) return 0;
+            const str = num.toString();
+            if (str.indexOf('.') !== -1) {
+                return Math.min(3, str.split('.')[1].length);
+            }
+            return 0;
+        }
+
+        function formatNumberNice(num, decimals) {
+            if (Math.abs(num) < 1e-7) return "0";
+            return num.toLocaleString('ca-ES', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: decimals
+            });
         }
 
         function renderCanvas() {
             const canvas = document.getElementById('mainChartCanvas');
             const ctx = canvas.getContext('2d');
-            const scale = parseFloat(document.getElementById('export-res-select')?.value || 2);
+            const scale = parseFloat(document.getElementById('export-res-select')?.value || 3);
 
             let renderWidth, renderHeight;
 
             if (state.viewMode === 'single') {
-                renderWidth = 720;
-                renderHeight = 520;
+                renderWidth = 760;
+                renderHeight = 540;
                 
                 canvas.width = renderWidth * scale;
                 canvas.height = renderHeight * scale;
@@ -1083,7 +1206,7 @@
 
                 const currentChart = state.charts[state.selectedChartIndex];
                 if (currentChart) {
-                    drawExcelSubchart(ctx, currentChart, 20, 20, renderWidth - 40, renderHeight - 40);
+                    drawExcelSubchart(ctx, currentChart, 20, 20, renderWidth - 40, renderHeight - 40, '');
                 } else {
                     ctx.fillStyle = "#94a3b8";
                     ctx.font = `14px ${state.visualSettings.fontFamily}`;
@@ -1097,12 +1220,12 @@
                 const rows = state.matrixSettings.rows;
                 const cols = state.matrixSettings.cols;
                 const subW = 380;
-                const subH = 290;
+                const subH = 300;
                 const spacing = state.matrixSettings.spacing;
                 const padding = state.matrixSettings.padding;
 
-                const headerHeight = state.matrixSettings.title ? 80 : 30;
-                const footerHeight = state.matrixSettings.subtitle ? 40 : 20;
+                const headerHeight = state.matrixSettings.title ? 85 : 35;
+                const footerHeight = state.matrixSettings.subtitle ? 45 : 20;
 
                 renderWidth = padding * 2 + cols * subW + (cols - 1) * spacing;
                 renderHeight = headerHeight + padding + rows * subH + (rows - 1) * spacing + footerHeight;
@@ -1119,15 +1242,16 @@
                 ctx.fillStyle = state.matrixSettings.bgColor || "#ffffff";
                 ctx.fillRect(0, 0, renderWidth, renderHeight);
 
-                // Draw Overall Figure Title
+                // Overall Main Title
                 if (state.matrixSettings.title) {
                     ctx.fillStyle = "#0f172a";
-                    ctx.font = `bold 20px ${state.visualSettings.fontFamily}`;
+                    ctx.font = `bold 22px ${state.visualSettings.fontFamily}`;
                     ctx.textAlign = "center";
-                    ctx.fillText(state.matrixSettings.title, renderWidth / 2, padding + 10);
+                    ctx.fillText(state.matrixSettings.title, renderWidth / 2, padding + 15);
                 }
 
-                // Render each subplot cell
+                // Render each subchart cell
+                const badgeLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
                 for (let r = 0; r < rows; r++) {
                     for (let c = 0; c < cols; c++) {
                         const slotIdx = r * cols + c;
@@ -1137,15 +1261,17 @@
                         const posX = padding + c * (subW + spacing);
                         const posY = headerHeight + padding + r * (subH + spacing);
 
+                        const badgeStr = state.matrixSettings.showBadges ? badgeLetters[slotIdx % badgeLetters.length] : '';
+
                         if (chartData) {
-                            drawExcelSubchart(ctx, chartData, posX, posY, subW, subH);
+                            drawExcelSubchart(ctx, chartData, posX, posY, subW, subH, badgeStr);
                         }
                     }
                 }
 
-                // Draw Figure Subtitle/Legend Footer
+                // Overall Subtitle Legend Footer
                 if (state.matrixSettings.subtitle) {
-                    ctx.fillStyle = "#64748b";
+                    ctx.fillStyle = "#475569";
                     ctx.font = `italic 12px ${state.visualSettings.fontFamily}`;
                     ctx.textAlign = "center";
                     ctx.fillText(state.matrixSettings.subtitle, renderWidth / 2, renderHeight - 20);
@@ -1157,51 +1283,76 @@
             document.getElementById('canvas-dimensions-label').textContent = `Mida del Canvas: ${canvas.width} x ${canvas.height} px`;
         }
 
-        function drawExcelSubchart(ctx, chart, x, y, width, height) {
+        // Draw Individual Chart Component with Smart Dynamic Scaling & Rotation
+        function drawExcelSubchart(ctx, chart, x, y, width, height, panelBadge = '') {
             ctx.save();
 
-            // Calculate chart bounds
-            const titleHeight = 30;
+            // Measure long X label requirements for dynamic rotation
+            ctx.font = `11px ${state.visualSettings.fontFamily}`;
+            let maxLabelWidth = 0;
+            (chart.bars || []).forEach(b => {
+                const w = ctx.measureText(b.label || '').width;
+                if (w > maxLabelWidth) maxLabelWidth = w;
+            });
+
+            const numBars = chart.bars ? chart.bars.length : 1;
+            const approxBarSpace = (width - 100) / numBars;
+            const needsRotation = maxLabelWidth > approxBarSpace * 0.8 || numBars > 5;
+
+            // Dynamic Paddings
+            const titleHeight = 32;
             const xLabelHeight = chart.xAxisLabel ? 25 : 15;
-            const yLabelWidth = chart.yAxisLabel ? 35 : 20;
-            const leftMargin = 55 + yLabelWidth;
-            const rightMargin = 20;
+            const xLabelRotationPadding = needsRotation ? Math.min(65, maxLabelWidth * 0.8) : 25;
+            
+            const leftMargin = 65;
+            const rightMargin = 25;
             const topMargin = titleHeight + 10;
-            const bottomMargin = 45 + xLabelHeight;
+            const bottomMargin = xLabelRotationPadding + xLabelHeight + 15;
 
             const plotX = x + leftMargin;
             const plotY = y + topMargin;
             const plotW = width - leftMargin - rightMargin;
             const plotH = height - topMargin - bottomMargin;
 
-            // Draw Chart Title
-            ctx.fillStyle = "#1e293b";
-            ctx.font = `bold 14px ${state.visualSettings.fontFamily}`;
-            ctx.textAlign = "center";
-            ctx.fillText(chart.title || '', x + width / 2, y + 18);
-
-            // Determine Y limits
-            let yMin = chart.yMin;
-            let yMax = chart.yMax;
-
-            if (chart.yAuto) {
-                let maxVal = -Infinity;
-                let minVal = Infinity;
-                (chart.bars || []).forEach(b => {
-                    const top = b.value + (b.sd || 0);
-                    const bot = b.value - (b.sd || 0);
-                    if (top > maxVal) maxVal = top;
-                    if (bot < minVal) minVal = bot;
-                });
-                if (minVal > 0 || minVal === Infinity) minVal = 0;
-                if (maxVal === -Infinity) maxVal = 10;
-                maxVal = maxVal * 1.15;
-
-                yMin = 0;
-                yMax = maxVal;
+            // Draw Subpanel Badge (e.g., "A)")
+            if (panelBadge) {
+                ctx.fillStyle = "#0f172a";
+                ctx.font = `bold 16px ${state.visualSettings.fontFamily}`;
+                ctx.textAlign = "left";
+                ctx.fillText(`${panelBadge})`, x + 10, y + 22);
             }
 
-            const ticks = calculateTicks(yMin, yMax, chart.yStep);
+            // Draw Chart Title
+            if (chart.title) {
+                ctx.fillStyle = "#1e293b";
+                ctx.font = `bold 14px ${state.visualSettings.fontFamily}`;
+                ctx.textAlign = panelBadge ? "left" : "center";
+                const titleX = panelBadge ? x + 38 : x + width / 2;
+                ctx.fillText(chart.title, titleX, y + 20);
+            }
+
+            // DYNAMIC Y-LIMITS CALCULATION
+            let rawMaxY = -Infinity;
+            let rawMinY = 0;
+
+            (chart.bars || []).forEach(b => {
+                const topValue = (b.value || 0) + Math.abs(b.sd || 0);
+                if (topValue > rawMaxY) rawMaxY = topValue;
+            });
+
+            if (rawMaxY <= 0 || rawMaxY === -Infinity) rawMaxY = 10;
+
+            // Add 15% breathing room at top
+            let calculatedMaxY = rawMaxY * 1.15;
+            let calculatedMinY = 0;
+
+            if (!chart.yAuto) {
+                calculatedMinY = chart.yMin;
+                calculatedMaxY = chart.yMax;
+            }
+
+            // Calculate Nice Ticks
+            const { ticks, decimals } = calculateNiceTicks(calculatedMinY, calculatedMaxY, chart.yAuto ? null : chart.yStep, plotH);
             const actualYMin = ticks[0];
             const actualYMax = ticks[ticks.length - 1];
 
@@ -1210,7 +1361,7 @@
                 return plotY + plotH - ratio * plotH;
             }
 
-            // Draw Horizontal Gridlines
+            // Draw Gridlines
             if (state.visualSettings.showGridlines) {
                 ctx.strokeStyle = "#e2e8f0";
                 ctx.lineWidth = 1;
@@ -1224,39 +1375,40 @@
             }
 
             // Draw Y-Axis Ticks & Labels
-            ctx.fillStyle = "#64748b";
+            ctx.fillStyle = "#475569";
             ctx.font = `11px ${state.visualSettings.fontFamily}`;
             ctx.textAlign = "right";
             ctx.textBaseline = "middle";
 
             ticks.forEach(tick => {
                 const ty = valToY(tick);
-                ctx.fillText(tick.toString(), plotX - 8, ty);
+                const formattedStr = formatNumberNice(tick, decimals);
+                ctx.fillText(formattedStr, plotX - 8, ty);
 
-                ctx.strokeStyle = "#cbd5e1";
+                ctx.strokeStyle = "#94a3b8";
                 ctx.beginPath();
                 ctx.moveTo(plotX - 4, ty);
                 ctx.lineTo(plotX, ty);
                 ctx.stroke();
             });
 
-            // Draw Y-Axis Title (Rotated -90 deg)
+            // Draw Y-Axis Label
             if (chart.yAxisLabel) {
                 ctx.save();
-                ctx.translate(x + 15, plotY + plotH / 2);
+                ctx.translate(x + 16, plotY + plotH / 2);
                 ctx.rotate(-Math.PI / 2);
-                ctx.fillStyle = "#334155";
+                ctx.fillStyle = "#0f172a";
                 ctx.font = `bold 11px ${state.visualSettings.fontFamily}`;
                 ctx.textAlign = "center";
                 ctx.fillText(chart.yAxisLabel, 0, 0);
                 ctx.restore();
             }
 
-            // Draw Main Axes Lines
-            ctx.strokeStyle = "#94a3b8";
+            // Draw Main Axis Borders
+            ctx.strokeStyle = "#64748b";
             ctx.lineWidth = 1.2;
             
-            // Y Axis line
+            // Y Axis
             ctx.beginPath();
             ctx.moveTo(plotX, plotY);
             ctx.lineTo(plotX, plotY + plotH);
@@ -1269,14 +1421,12 @@
             ctx.lineTo(plotX + plotW, baselineY);
             ctx.stroke();
 
-            // Draw Bars and Error Bars
-            const numBars = chart.bars ? chart.bars.length : 0;
+            // DRAW BARS & ERROR BARS
             if (numBars > 0) {
-                const groupWidth = plotW;
+                const totalBarSpace = plotW / numBars;
                 const barGapRatio = 0.35;
-                const totalBarSpace = groupWidth / numBars;
-                const barWidth = totalBarSpace * (1 - barGapRatio);
-                const barPadding = (totalBarSpace * barGapRatio) / 2;
+                const barWidth = Math.max(12, totalBarSpace * (1 - barGapRatio));
+                const barPadding = (totalBarSpace - barWidth) / 2;
 
                 chart.bars.forEach((bar, i) => {
                     const barX = plotX + i * totalBarSpace + barPadding;
@@ -1286,77 +1436,95 @@
                     const barH = Math.abs(zeroY - valY);
                     const topY = Math.min(valY, zeroY);
 
-                    // Render Excel Bar Rectangle
+                    // Bar Rectangle
                     ctx.fillStyle = bar.color || '#4472C4';
                     ctx.fillRect(barX, topY, barWidth, barH);
 
-                    // Fine border stroke around bar
-                    ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
+                    // Bar Outline
+                    ctx.strokeStyle = "rgba(0, 0, 0, 0.15)";
                     ctx.lineWidth = 1;
                     ctx.strokeRect(barX, topY, barWidth, barH);
 
-                    // Draw Value label above bar if enabled
-                    if (state.visualSettings.showBarValues) {
-                        ctx.fillStyle = "#0f172a";
-                        ctx.font = `10px ${state.visualSettings.fontFamily}`;
-                        ctx.textAlign = "center";
-                        ctx.fillText(bar.value.toString(), barX + barWidth / 2, valY - (bar.sd ? 12 : 5));
-                    }
-
+                    // T-CAP ERROR BARS
+                    let topErrorY = valY;
                     if (bar.sd && bar.sd > 0) {
                         const centerX = barX + barWidth / 2;
-                        const errorTopY = valToY(bar.value + bar.sd);
-                        const errorBotY = valToY(bar.value - bar.sd);
+                        topErrorY = valToY(bar.value + bar.sd);
+                        const botErrorY = valToY(bar.value - bar.sd);
                         const capW = state.errorSettings.capWidth / 2;
 
-                        let errorColor = state.errorSettings.color;
-                        if (errorColor === 'match') errorColor = bar.color || '#000000';
+                        let errColor = state.errorSettings.color;
+                        if (errColor === 'match') errColor = bar.color || '#000000';
 
-                        ctx.strokeStyle = errorColor;
+                        ctx.strokeStyle = errColor;
                         ctx.lineWidth = state.errorSettings.lineWidth;
 
-                        // Vertical error line
+                        // Vertical error stroke
                         ctx.beginPath();
                         if (state.errorSettings.style === 'top') {
                             ctx.moveTo(centerX, valY);
-                            ctx.lineTo(centerX, errorTopY);
+                            ctx.lineTo(centerX, topErrorY);
                         } else {
-                            ctx.moveTo(centerX, errorBotY);
-                            ctx.lineTo(centerX, errorTopY);
+                            ctx.moveTo(centerX, botErrorY);
+                            ctx.lineTo(centerX, topErrorY);
                         }
                         ctx.stroke();
 
-                        // Top T-Cap
+                        // Top T-cap
                         ctx.beginPath();
-                        ctx.moveTo(centerX - capW, errorTopY);
-                        ctx.lineTo(centerX + capW, errorTopY);
+                        ctx.moveTo(centerX - capW, topErrorY);
+                        ctx.lineTo(centerX + capW, topErrorY);
                         ctx.stroke();
 
-                        // Bottom T-Cap
+                        // Bottom T-cap
                         if (state.errorSettings.style === 'both') {
                             ctx.beginPath();
-                            ctx.moveTo(centerX - capW, errorBotY);
-                            ctx.lineTo(centerX + capW, errorBotY);
+                            ctx.moveTo(centerX - capW, botErrorY);
+                            ctx.lineTo(centerX + capW, botErrorY);
                             ctx.stroke();
                         }
                     }
 
-                    // Category X Label below baseline
-                    ctx.fillStyle = "#334155";
-                    ctx.font = `11px ${state.visualSettings.fontFamily}`;
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "top";
-                    ctx.fillText(bar.label, barX + barWidth / 2, plotY + plotH + 8);
+                    // Numeric value on top of bar/error bar
+                    if (state.visualSettings.showBarValues) {
+                        ctx.fillStyle = "#0f172a";
+                        ctx.font = `600 10px ${state.visualSettings.fontFamily}`;
+                        ctx.textAlign = "center";
+                        const textY = Math.min(valY, topErrorY) - 5;
+                        ctx.fillText(formatNumberNice(bar.value, 2), barX + barWidth / 2, textY);
+                    }
+
+                    // X-Axis Category Labels (Rotated dynamically if needed)
+                    ctx.save();
+                    const centerX = barX + barWidth / 2;
+                    const labelY = plotY + plotH + 8;
+
+                    if (needsRotation) {
+                        ctx.translate(centerX, labelY);
+                        ctx.rotate(-Math.PI / 4); // -45 deg
+                        ctx.fillStyle = "#334155";
+                        ctx.font = `11px ${state.visualSettings.fontFamily}`;
+                        ctx.textAlign = "right";
+                        ctx.textBaseline = "middle";
+                        ctx.fillText(bar.label, 0, 0);
+                    } else {
+                        ctx.fillStyle = "#334155";
+                        ctx.font = `11px ${state.visualSettings.fontFamily}`;
+                        ctx.textAlign = "center";
+                        ctx.textBaseline = "top";
+                        ctx.fillText(bar.label, centerX, labelY);
+                    }
+                    ctx.restore();
                 });
             }
 
-            // Draw X-Axis Title
+            // X-Axis Title
             if (chart.xAxisLabel) {
-                ctx.fillStyle = "#1e293b";
+                ctx.fillStyle = "#0f172a";
                 ctx.font = `bold 11px ${state.visualSettings.fontFamily}`;
                 ctx.textAlign = "center";
                 ctx.textBaseline = "bottom";
-                ctx.fillText(chart.xAxisLabel, plotX + plotW / 2, y + height - 5);
+                ctx.fillText(chart.xAxisLabel, plotX + plotW / 2, y + height - 4);
             }
 
             ctx.restore();
@@ -1377,7 +1545,7 @@
             a.click();
             document.body.removeChild(a);
 
-            showToast(`Imatges exportades en PNG amb èxit`);
+            showToast(`Imatge descarregada en PNG alta resolució`);
         }
 
         function exportJSONProject() {
@@ -1393,7 +1561,7 @@
             document.body.removeChild(a);
             URL.revokeObjectURL(url);
 
-            showToast('Projecte desat en fitxer JSON');
+            showToast('Projecte desat en JSON');
         }
 
         function importJSONProject(event) {
@@ -1407,9 +1575,9 @@
                     if (importedState.charts && Array.isArray(importedState.charts)) {
                         Object.assign(state, importedState);
                         updateUI();
-                        showToast('Projecte carregat correctament');
+                        showToast('Projecte importat amb èxit');
                     } else {
-                        showToast('El fitxer JSON no té un format vàlid.');
+                        showToast('El fitxer JSON no té una estructura vàlida.');
                     }
                 } catch (err) {
                     showToast('Error en llegir el fitxer JSON.');
@@ -1418,11 +1586,11 @@
             reader.readAsText(file);
         }
 
-        // Sistema de notificacions Toast
+        // Custom Toast Notifications
         function showToast(msg) {
             const container = document.getElementById('toast-container');
             const toast = document.createElement('div');
-            toast.className = "bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-xl mb-2 flex items-center gap-2 border border-slate-700";
+            toast.className = "bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-2xl flex items-center gap-2 border border-slate-700 animate-bounce";
             toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> ${msg}`;
             container.appendChild(toast);
 
@@ -1430,9 +1598,10 @@
                 toast.style.opacity = '0';
                 toast.style.transition = 'opacity 0.3s ease';
                 setTimeout(() => toast.remove(), 300);
-            }, 2500);
+            }, 2600);
         }
 
+        // On window load
         window.onload = function() {
             initEmptyProject();
         };
