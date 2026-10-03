@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SC TOOLS - Eina Avançada de Gràfics Científics (Codi Obert)</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom styling & fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+
+        /* Custom Scrollbars */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        /* Reset de selector de color */
+        input[type="color"] {
+            -webkit-appearance: none;
+            border: none;
+            cursor: pointer;
+        }
+        input[type="color"]::-webkit-color-swatch-wrapper {
+            padding: 0;
+        }
+        input[type="color"]::-webkit-color-swatch {
+            border: 1px solid #cbd5e1;
+            border-radius: 0.375rem;
+        }
+
+        /* Estils de taula d'edició */
+        .excel-table input {
+            border: 1px solid transparent;
+            transition: all 0.15s ease;
+        }
+        .excel-table input:focus {
+            border-color: #059669;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(5, 150, 105, 0.2);
+            background-color: #ffffff;
+        }
+
+        .tab-btn.active {
+            border-bottom: 3px solid #10b981;
+            color: #047857;
+            font-weight: 600;
+            background-color: #ecfdf5;
+        }
+
+        /* Toast Notifications */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 9999;
+        }
+
+        /* Menu desplegable estils */
+        .dropdown-menu {
+            display: none;
+        }
+        .dropdown-parent:hover .dropdown-menu {
+            display: block;
+        }
+    </style>
+</head>
+<body class="h-screen flex flex-col overflow-hidden bg-slate-100">
+
+    <!-- Top Application Menu & Header -->
+    <header class="bg-slate-900 text-white shadow-md flex-shrink-0 z-30">
+        <!-- Main Top Bar -->
+        <div class="px-5 py-2.5 flex items-center justify-between border-b border-slate-800">
+            <div class="flex items-center space-x-3">
+                <div class="bg-emerald-500 text-slate-950 font-black px-3 py-1 rounded-lg text-base tracking-wider flex items-center gap-2 shadow-sm">
+                    <i class="fa-solid fa-chart-column text-lg"></i>
+                    SC TOOLS
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="text-xs font-semibold text-slate-200 leading-none">Eina de Gràfics amb Desviació Estàndard</h1>
+                        <span class="bg-slate-800 text-emerald-400 border border-emerald-500/30 text-[10px] font-mono px-2 py-0.5 rounded-full">v2.5 Open Source</span>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-0.5">Llicència Lliure MIT • Entorn de Treball Net</p>
+                </div>
+            </div>
+
+            <div class="flex items-center space-x-2">
+                <button onclick="createNewChart()" class="px-3 py-1.5 text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition flex items-center gap-1.5 shadow-sm">
+                    <i class="fa-solid fa-plus"></i>
+                    Nou Gràfic
+                </button>
+                <button onclick="exportJSONProject()" class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center gap-1.5">
+                    <i class="fa-solid fa-download"></i>
+                    Desar Projecte
+                </button>
+                <label class="px-3 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg transition flex items-center gap-1.5 cursor-pointer">
+                    <i class="fa-solid fa-upload"></i>
+                    Carregar Projecte
+                    <input type="file" id="importProjectInput" accept=".json" class="hidden" onchange="importJSONProject(event)">
+                </label>
+                <div class="h-5 w-px bg-slate-800 mx-1"></div>
+                <button onclick="loadSampleData()" class="px-2.5 py-1.5 text-xs font-medium bg-slate-800 hover:bg-slate-700 text-amber-400 border border-amber-500/30 rounded-lg transition flex items-center gap-1.5" title="Carregar dades de prova només si ho necessites">
+                    <i class="fa-solid fa-flask"></i>
+                    Carregar Exemple
+                </button>
+            </div>
+        </div>
+
+        <!-- Sub Bar Menu Desktop Style -->
+        <div class="px-5 py-1 bg-slate-950 flex items-center text-xs text-slate-300 space-x-4 border-b border-slate-800/60 font-medium">
+            <!-- Menú Fitxer -->
+            <div class="relative dropdown-parent py-1 cursor-pointer hover:text-white flex items-center gap-1">
+                <span><i class="fa-regular fa-folder mr-1"></i>Fitxer</span>
+                <i class="fa-solid fa-chevron-down text-[9px] text-slate-500"></i>
+                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-48 py-1.5 z-50 mt-1">
+                    <button onclick="createNewChart()" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-file-plus text-emerald-400"></i> Nou Gràfic
+                    </button>
+                    <button onclick="clearAllData()" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-rose-400 flex items-center gap-2">
+                        <i class="fa-solid fa-trash-can"></i> Netejar Tot
+                    </button>
+                    <div class="border-t border-slate-800 my-1"></div>
+                    <button onclick="exportJSONProject()" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> Desar Projecte (.json)
+                    </button>
+                    <label class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2 cursor-pointer">
+                        <i class="fa-solid fa-folder-open"></i> Obrir Projecte (.json)
+                        <input type="file" accept=".json" class="hidden" onchange="importJSONProject(event)">
+                    </label>
+                </div>
+            </div>
+
+            <!-- Menú Edició -->
+            <div class="relative dropdown-parent py-1 cursor-pointer hover:text-white flex items-center gap-1">
+                <span><i class="fa-regular fa-pen-to-square mr-1"></i>Edició</span>
+                <i class="fa-solid fa-chevron-down text-[9px] text-slate-500"></i>
+                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-52 py-1.5 z-50 mt-1">
+                    <button onclick="duplicateCurrentChart()" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-clone text-emerald-400"></i> Duplicar Gràfic Actual
+                    </button>
+                    <button onclick="deleteCurrentChart()" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-rose-400 flex items-center gap-2">
+                        <i class="fa-solid fa-eraser"></i> Eliminar Gràfic Actual
+                    </button>
+                </div>
+            </div>
+
+            <!-- Menú Vista -->
+            <div class="relative dropdown-parent py-1 cursor-pointer hover:text-white flex items-center gap-1">
+                <span><i class="fa-regular fa-eye mr-1"></i>Vista</span>
+                <i class="fa-solid fa-chevron-down text-[9px] text-slate-500"></i>
+                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-48 py-1.5 z-50 mt-1">
+                    <button onclick="setViewMode('single')" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-simple text-blue-400"></i> Mode Gràfic Únic
+                    </button>
+                    <button onclick="setViewMode('matrix')" class="w-full text-left px-3 py-1.5 hover:bg-slate-800 text-xs text-slate-200 flex items-center gap-2">
+                        <i class="fa-solid fa-grip text-emerald-400"></i> Mode Matriu Agrupada
+                    </button>
+                </div>
+            </div>
+
+            <!-- Menú Codi Obert / Info -->
+            <div class="relative dropdown-parent py-1 cursor-pointer hover:text-white flex items-center gap-1">
+                <span><i class="fa-solid fa-code-branch mr-1 text-emerald-400"></i>Codi Obert</span>
+                <i class="fa-solid fa-chevron-down text-[9px] text-slate-500"></i>
+                <div class="dropdown-menu absolute top-full left-0 bg-slate-900 border border-slate-700 rounded-lg shadow-xl w-60 py-2 px-3 z-50 mt-1 text-slate-300">
+                    <p class="font-bold text-white text-xs mb-1">SC TOOLS v2.5</p>
+                    <p class="text-[11px] text-slate-400 leading-tight mb-2">Projecte lliure i d'espai de treball buit per a recerca científica i acadèmica.</p>
+                    <div class="border-t border-slate-800 pt-1.5 text-[10px] text-emerald-400 flex justify-between">
+                        <span>Llicència MIT</span>
+                        <span>Sense Servidors / 100% Local</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Workspace -->
+    <div class="flex-1 flex overflow-hidden">
+        
+        <!-- Left Panel: Controls & Data Editor -->
+        <aside class="w-full md:w-[490px] lg:w-[550px] bg-white border-r border-slate-200 flex flex-col flex-shrink-0 shadow-lg z-10">
+            
+            <!-- Tab Header Navigation -->
+            <div class="flex border-b border-slate-200 bg-slate-50 text-xs font-medium text-slate-600">
+                <button onclick="switchTab('editor')" id="tab-btn-editor" class="tab-btn active flex-1 py-3 px-2 text-center transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    1. Gràfics i Dades
+                </button>
+                <button onclick="switchTab('styling')" id="tab-btn-styling" class="tab-btn flex-1 py-3 px-2 text-center transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-sliders"></i>
+                    2. Estil i Desviació (SD)
+                </button>
+                <button onclick="switchTab('matrix')" id="tab-btn-matrix" class="tab-btn flex-1 py-3 px-2 text-center transition flex items-center justify-center gap-1.5">
+                    <i class="fa-solid fa-table-cells"></i>
+                    3. Matriu Agrupada
+                </button>
+            </div>
+
+            <!-- Tab Content Area -->
+            <div class="flex-1 overflow-y-auto p-4 space-y-5">
+
+                <!-- TAB 1: DATA EDITOR -->
+                <div id="tab-content-editor" class="space-y-5">
+                    
+                    <!-- Chart Selector / Navigation -->
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200 space-y-3">
+                        <div class="flex items-center justify-between">
+                            <label class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-list-check text-emerald-600"></i>
+                                Selecciona el Gràfic a Editar
+                            </label>
+                            <span id="chart-count-badge" class="text-[11px] bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-0.5 rounded-full">
+                                0 Gràfics
+                            </span>
+                        </div>
+                        
+                        <div class="flex items-center gap-2">
+                            <select id="chart-select-dropdown" onchange="onSelectChart(this.value)" class="flex-1 bg-white border border-slate-300 rounded-lg text-xs font-medium p-2 text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500">
+                                <!-- Populated dynamically -->
+                            </select>
+                            <button onclick="duplicateCurrentChart()" title="Duplicar aquest gràfic" class="p-2 text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 border border-slate-300 rounded-lg transition bg-white">
+                                <i class="fa-solid fa-copy"></i>
+                            </button>
+                            <button onclick="deleteCurrentChart()" title="Eliminar aquest gràfic" class="p-2 text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-300 rounded-lg transition bg-white">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Chart Meta Properties -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center justify-between">
+                            <span><i class="fa-solid fa-heading text-slate-400 mr-1.5"></i> Textos i Configuració dels Eixos</span>
+                        </h3>
+
+                        <div class="grid grid-cols-1 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Títol del Gràfic</label>
+                                <input type="text" id="chart-title-input" placeholder="Ex: A) Activitat Enzimàtica" oninput="updateChartMeta()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
+                            </div>
+                            
+                            <div class="grid grid-cols-2 gap-3">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Etiqueta Eix X (Categories)</label>
+                                    <input type="text" id="chart-xlabel-input" placeholder="Ex: Tractament" oninput="updateChartMeta()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Etiqueta Eix Y (Valors/Unitats)</label>
+                                    <input type="text" id="chart-ylabel-input" placeholder="Ex: Concentració (µM)" oninput="updateChartMeta()" class="w-full text-xs p-2 border border-slate-300 rounded-lg focus:ring-1 focus:ring-emerald-500 focus:border-emerald-500">
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Y Axis Range Options -->
+                        <div class="pt-2 border-t border-slate-100">
+                            <div class="flex items-center justify-between mb-2">
+                                <span class="text-[11px] font-semibold text-slate-600">Escala de l'Eix Y</span>
+                                <label class="inline-flex items-center cursor-pointer">
+                                    <input type="checkbox" id="chart-yauto-checkbox" onchange="toggleYAuto()" class="sr-only peer" checked>
+                                    <div class="w-8 h-4 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-3 after:w-3 after:transition-all peer-checked:bg-emerald-600"></div>
+                                    <span class="ml-2 text-[11px] font-medium text-slate-600">Automàtica</span>
+                                </label>
+                            </div>
+
+                            <div id="manual-y-container" class="grid grid-cols-3 gap-2 hidden">
+                                <div>
+                                    <label class="block text-[10px] text-slate-500 mb-0.5">Mínim</label>
+                                    <input type="number" id="chart-ymin-input" step="any" oninput="updateChartMeta()" class="w-full text-xs p-1.5 border border-slate-300 rounded-md">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-500 mb-0.5">Màxim</label>
+                                    <input type="number" id="chart-ymax-input" step="any" oninput="updateChartMeta()" class="w-full text-xs p-1.5 border border-slate-300 rounded-md">
+                                </div>
+                                <div>
+                                    <label class="block text-[10px] text-slate-500 mb-0.5">Pas / Ticks</label>
+                                    <input type="number" id="chart-ystep-input" step="any" oninput="updateChartMeta()" class="w-full text-xs p-1.5 border border-slate-300 rounded-md" placeholder="Auto">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Interactive Data Table -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                            <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                                <i class="fa-solid fa-table text-slate-400"></i>
+                                Barras i Valors (&plusmn; Desviació SD)
+                            </h3>
+                            <button onclick="addBarRow()" class="text-xs bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 font-semibold px-2.5 py-1 rounded-md transition flex items-center gap-1">
+                                <i class="fa-solid fa-plus text-[10px]"></i> Afegir Barra
+                            </button>
+                        </div>
+
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs excel-table border-collapse">
+                                <thead>
+                                    <tr class="bg-slate-100 text-slate-600 font-semibold border-b border-slate-200">
+                                        <th class="py-2 px-2">Categoria (Eix X)</th>
+                                        <th class="py-2 px-2 w-20">Valor (Y)</th>
+                                        <th class="py-2 px-2 w-24">Desv. SD (&plusmn;)</th>
+                                        <th class="py-2 px-2 w-10 text-center">Color</th>
+                                        <th class="py-2 px-1 w-10 text-center">Acció</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="bar-table-body" class="divide-y divide-slate-100">
+                                    <!-- Dynamic rows loaded here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TAB 2: STYLING & ERROR BARS -->
+                <div id="tab-content-styling" class="space-y-5 hidden">
+                    
+                    <!-- Color Palette Presets -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-palette text-slate-400"></i>
+                            Paletes de Color Estil Excel / Científic
+                        </h3>
+
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <button onclick="applyPalette('office')" class="p-2 border border-slate-200 rounded-lg hover:border-emerald-500 text-left transition bg-slate-50">
+                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Blau Office (Predeterminat)</div>
+                                <div class="flex h-3 rounded overflow-hidden">
+                                    <span class="flex-1 bg-[#4472C4]"></span>
+                                    <span class="flex-1 bg-[#ED7D31]"></span>
+                                    <span class="flex-1 bg-[#A5A5A5]"></span>
+                                    <span class="flex-1 bg-[#FFC000]"></span>
+                                </div>
+                            </button>
+
+                            <button onclick="applyPalette('classic')" class="p-2 border border-slate-200 rounded-lg hover:border-emerald-500 text-left transition bg-slate-50">
+                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Excel Clàssic Obscur</div>
+                                <div class="flex h-3 rounded overflow-hidden">
+                                    <span class="flex-1 bg-[#1F4E78]"></span>
+                                    <span class="flex-1 bg-[#2F5597]"></span>
+                                    <span class="flex-1 bg-[#385723]"></span>
+                                    <span class="flex-1 bg-[#C65911]"></span>
+                                </div>
+                            </button>
+
+                            <button onclick="applyPalette('scientific')" class="p-2 border border-slate-200 rounded-lg hover:border-emerald-500 text-left transition bg-slate-50">
+                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Científic (Nature / Cell)</div>
+                                <div class="flex h-3 rounded overflow-hidden">
+                                    <span class="flex-1 bg-[#0072B2]"></span>
+                                    <span class="flex-1 bg-[#E69F00]"></span>
+                                    <span class="flex-1 bg-[#009E73]"></span>
+                                    <span class="flex-1 bg-[#D55E00]"></span>
+                                </div>
+                            </button>
+
+                            <button onclick="applyPalette('mono')" class="p-2 border border-slate-200 rounded-lg hover:border-emerald-500 text-left transition bg-slate-50">
+                                <div class="text-[11px] font-semibold text-slate-700 mb-1">Monocromàtic / Escala Grisos</div>
+                                <div class="flex h-3 rounded overflow-hidden">
+                                    <span class="flex-1 bg-[#262626]"></span>
+                                    <span class="flex-1 bg-[#595959]"></span>
+                                    <span class="flex-1 bg-[#8C8C8C]"></span>
+                                    <span class="flex-1 bg-[#BFBFBF]"></span>
+                                </div>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Error Bar Configuration -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-4">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center gap-1.5">
+                            <i class="fa-solid fa-sliders text-slate-400"></i>
+                            Ajusts de Barras de Error (&plusmn; SD T-Cap)
+                        </h3>
+
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                                    <span>Amplada del T-Cap (Tapó Superior/Inferior)</span>
+                                    <span id="cap-width-val" class="font-bold text-slate-800">12 px</span>
+                                </div>
+                                <input type="range" id="cap-width-slider" min="4" max="30" value="12" oninput="updateErrorSettings()" class="w-full accent-emerald-600">
+                            </div>
+
+                            <div>
+                                <div class="flex justify-between text-xs font-medium text-slate-600 mb-1">
+                                    <span>Gruix de Línea d'Error</span>
+                                    <span id="line-width-val" class="font-bold text-slate-800">2.0 px</span>
+                                </div>
+                                <input type="range" id="line-width-slider" min="1" max="5" step="0.5" value="2" oninput="updateErrorSettings()" class="w-full accent-emerald-600">
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-3 pt-2">
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Color de Barras d'Error</label>
+                                    <select id="error-color-mode" onchange="updateErrorSettings()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                                        <option value="#000000">Negre Sòlid (#000000)</option>
+                                        <option value="#404040">Gris Obscur (#404040)</option>
+                                        <option value="match">Mateix Color de la Barra</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label class="block text-[11px] font-semibold text-slate-600 mb-1">Modo de Dibuix</label>
+                                    <select id="error-style-mode" onchange="updateErrorSettings()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                                        <option value="both">Complet (&plusmn; SD)</option>
+                                        <option value="top">Només Superior (+SD)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Chart Gridlines & Fonts -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2">
+                            Línies de Retícula i Valors
+                        </h3>
+                        <div class="grid grid-cols-2 gap-3">
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="show-gridlines-check" onchange="updateVisualSettings()" checked class="rounded text-emerald-600 focus:ring-emerald-500">
+                                <span class="text-xs text-slate-600 font-medium">Línies Horitzontals</span>
+                            </label>
+
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" id="show-values-check" onchange="updateVisualSettings()" class="rounded text-emerald-600 focus:ring-emerald-500">
+                                <span class="text-xs text-slate-600 font-medium">Valors sobre les Barras</span>
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- TAB 3: MATRIX & GROUPING -->
+                <div id="tab-content-matrix" class="space-y-5 hidden">
+                    
+                    <!-- Preset Layout Grid Selector -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center justify-between">
+                            <span><i class="fa-solid fa-border-all text-slate-400 mr-1.5"></i> Distribució de la Matriu</span>
+                            <span class="text-[10px] bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded">
+                                Exportació Multiple
+                            </span>
+                        </h3>
+
+                        <div class="grid grid-cols-4 gap-2 text-center">
+                            <button onclick="setMatrixGrid(1,1)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
+                                1 x 1
+                            </button>
+                            <button onclick="setMatrixGrid(1,2)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
+                                1 x 2
+                            </button>
+                            <button onclick="setMatrixGrid(2,2)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
+                                2 x 2
+                            </button>
+                            <button onclick="setMatrixGrid(2,3)" class="p-2 border-2 border-emerald-500 bg-emerald-50 text-emerald-900 font-bold rounded-lg text-xs shadow-sm">
+                                2 x 3 (3 Arriba, 3 Abajo)
+                            </button>
+                            <button onclick="setMatrixGrid(3,1)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
+                                3 x 1
+                            </button>
+                            <button onclick="setMatrixGrid(3,3)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
+                                3 x 3
+                            </button>
+                            <button onclick="setMatrixGrid(2,4)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
+                                2 x 4
+                            </button>
+                            <button onclick="setMatrixGrid(4,2)" class="p-2 border border-slate-200 rounded-lg text-xs font-medium hover:border-emerald-500 hover:bg-emerald-50 transition">
+                                4 x 2
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Figure Global Titles -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2">
+                            Títol General de la Figura / Assaig
+                        </h3>
+
+                        <div class="space-y-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Títol de la Matriu Completa</label>
+                                <input type="text" id="matrix-title-input" placeholder="Ex: Figura 1: Comparativa de Respuestas Biológicas" oninput="updateMatrixSettings()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-600 mb-1">Subtítol o Llegenda Inferior</label>
+                                <input type="text" id="matrix-subtitle-input" placeholder="Ex: Valors representats com Mitjana ± Desviació Estàndard (SD)." oninput="updateMatrixSettings()" class="w-full text-xs p-2 border border-slate-300 rounded-lg">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slot Mapping Assignment -->
+                    <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm space-y-3">
+                        <h3 class="text-xs font-bold text-slate-700 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center justify-between">
+                            <span>Assignació de Gràfics en Posicions</span>
+                            <i class="fa-solid fa-arrows-rotate text-slate-400"></i>
+                        </h3>
+
+                        <div id="slot-mapping-container" class="grid grid-cols-1 gap-2">
+                            <!-- Populated dynamically based on matrix dimensions -->
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </aside>
+
+        <!-- Right Main Panel: Real-time Canvas Rendering & Preview -->
+        <main class="flex-1 flex flex-col bg-slate-200 overflow-hidden relative">
+            
+            <!-- Toolbar Preview Bar -->
+            <div class="bg-white border-b border-slate-300 px-6 py-2.5 flex items-center justify-between shadow-sm z-10 flex-shrink-0">
+                
+                <div class="flex items-center space-x-3">
+                    <span class="text-xs font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-eye text-emerald-600"></i>
+                        Mode de Visualització:
+                    </span>
+
+                    <div class="bg-slate-100 p-1 rounded-lg border border-slate-300 flex space-x-1">
+                        <button onclick="setViewMode('single')" id="view-mode-single-btn" class="px-3 py-1 text-xs font-medium bg-emerald-600 text-white rounded-md shadow-sm transition">
+                            <i class="fa-solid fa-chart-simple mr-1"></i> Gràfic Únic
+                        </button>
+                        <button onclick="setViewMode('matrix')" id="view-mode-matrix-btn" class="px-3 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 transition">
+                            <i class="fa-solid fa-grip mr-1"></i> Matriu Agrupada (<span id="matrix-badge-text">2x2</span>)
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Export Controls -->
+                <div class="flex items-center space-x-2">
+                    <select id="export-res-select" class="text-xs bg-slate-50 border border-slate-300 rounded-lg p-1.5 font-medium">
+                        <option value="2">Qualitat HD (2x Retina)</option>
+                        <option value="3">Qualitat Impressió (3x Ultra HD)</option>
+                        <option value="1">Estàndard (1x Estàndard Pantalla)</option>
+                    </select>
+
+                    <button onclick="exportCanvasImage('png')" class="px-3.5 py-1.5 text-xs font-bold bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition shadow flex items-center gap-1.5">
+                        <i class="fa-solid fa-file-image"></i>
+                        Descarregar Imatge PNG
+                    </button>
+                </div>
+            </div>
+
+            <!-- Canvas Display Area -->
+            <div class="flex-1 overflow-auto p-6 flex items-center justify-center relative">
+                <div class="bg-white p-4 rounded-xl shadow-2xl border border-slate-300 max-w-full max-h-full overflow-auto flex items-center justify-center">
+                    <!-- High resolution render canvas -->
+                    <canvas id="mainChartCanvas" class="max-w-full h-auto block rounded"></canvas>
+                </div>
+            </div>
+
+            <!-- Bottom Status Indicator -->
+            <footer class="bg-white border-t border-slate-200 px-6 py-1.5 text-[11px] text-slate-500 flex justify-between items-center">
+                <span>SC TOOLS • Renderitzat vectorial en temps real en Català</span>
+                <span class="font-mono text-slate-400" id="canvas-dimensions-label">Mida del Canvas: -- x -- px</span>
+            </footer>
+
+        </main>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="toast-container"></div>
+
+    <script>
+        // Global Application State (Entorn net de treball des de zero)
+        const state = {
+            charts: [],
+            selectedChartIndex: 0,
+            activeTab: 'editor', // 'editor', 'styling', 'matrix'
+            viewMode: 'single', // 'single' or 'matrix'
+            errorSettings: {
+                capWidth: 12,
+                lineWidth: 2,
+                color: '#000000',
+                style: 'both'
+            },
+            visualSettings: {
+                showGridlines: true,
+                showBarValues: false,
+                fontFamily: 'Inter, Segoe UI, Calibri, Arial, sans-serif'
+            },
+            matrixSettings: {
+                rows: 2,
+                cols: 2,
+                title: '',
+                subtitle: '',
+                spacing: 35,
+                padding: 40,
+                bgColor: '#ffffff',
+                assignments: [0, 1, 2, 3]
+            }
+        };
+
+        // Color Palettes
+        const PALETTES = {
+            office: ['#4472C4', '#ED7D31', '#A5A5A5', '#FFC000', '#5B9BD5', '#70AD47'],
+            classic: ['#1F4E78', '#2F5597', '#385723', '#C65911', '#833C0C', '#7030A0'],
+            scientific: ['#0072B2', '#E69F00', '#009E73', '#F0E442', '#D55E00', '#CC79A7'],
+            mono: ['#262626', '#595959', '#8C8C8C', '#BFBFBF', '#D9D9D9', '#7F7F7F']
+        };
+
+        // Inicialitza un projecte net per defecte
+        function initEmptyProject() {
+            state.charts = [
+                {
+                    id: 'chart_init_1',
+                    title: 'Gràfic 1',
+                    xAxisLabel: 'Categories',
+                    yAxisLabel: 'Valor',
+                    yAuto: true,
+                    yMin: 0,
+                    yMax: 10,
+                    yStep: 2,
+                    palette: 'office',
+                    bars: [
+                        { label: 'Grup A', value: 5.0, sd: 0.5, color: '#4472C4' },
+                        { label: 'Grup B', value: 7.5, sd: 0.8, color: '#ED7D31' }
+                    ]
+                }
+            ];
+            state.selectedChartIndex = 0;
+            state.matrixSettings.rows = 2;
+            state.matrixSettings.cols = 2;
+            state.matrixSettings.title = '';
+            state.matrixSettings.subtitle = '';
+            state.matrixSettings.assignments = [0, 0, 0, 0];
+
+            updateUI();
+        }
+
+        // Carrega dades d'exemple opcionalment
+        function loadSampleData() {
+            state.charts = [
+                {
+                    id: 'chart_1',
+                    title: 'A) Assaig Enzimàtic A',
+                    xAxisLabel: 'Tractament',
+                    yAxisLabel: 'Activitat (µmol/min)',
+                    yAuto: true,
+                    yMin: 0,
+                    yMax: 100,
+                    yStep: 20,
+                    palette: 'office',
+                    bars: [
+                        { label: 'Control', value: 45.2, sd: 3.1, color: '#4472C4' },
+                        { label: 'Dosi 1mM', value: 68.5, sd: 4.8, color: '#4472C4' },
+                        { label: 'Dosi 5mM', value: 89.1, sd: 5.2, color: '#4472C4' },
+                        { label: 'Inhibidor', value: 22.4, sd: 2.0, color: '#4472C4' }
+                    ]
+                },
+                {
+                    id: 'chart_2',
+                    title: 'B) Expressió Genètica B',
+                    xAxisLabel: 'Variant',
+                    yAxisLabel: 'Fold Change (mRNA)',
+                    yAuto: true,
+                    yMin: 0,
+                    yMax: 4,
+                    yStep: 1,
+                    palette: 'office',
+                    bars: [
+                        { label: 'WT', value: 1.00, sd: 0.12, color: '#ED7D31' },
+                        { label: 'Mut-A', value: 3.45, sd: 0.35, color: '#ED7D31' },
+                        { label: 'Mut-B', value: 0.62, sd: 0.08, color: '#ED7D31' },
+                        { label: 'Rescat', value: 1.15, sd: 0.15, color: '#ED7D31' }
+                    ]
+                }
+            ];
+
+            state.selectedChartIndex = 0;
+            state.matrixSettings.rows = 1;
+            state.matrixSettings.cols = 2;
+            state.matrixSettings.title = 'Figura 1: Resultats d\'Exemple de Laboratori';
+            state.matrixSettings.subtitle = 'Valors expressats com a Mitjana ± Desviació Estàndard (SD).';
+            state.matrixSettings.assignments = [0, 1];
+
+            updateUI();
+            showToast('Dades de mostra carregades correctament');
+        }
+
+        // Netejar tot l'espai de treball
+        function clearAllData() {
+            state.charts = [];
+            createNewChart();
+            showToast('Espai de treball netejat');
+        }
+
+        function switchTab(tabName) {
+            state.activeTab = tabName;
+            
+            ['editor', 'styling', 'matrix'].forEach(t => {
+                const btn = document.getElementById(`tab-btn-${t}`);
+                const content = document.getElementById(`tab-content-${t}`);
+                if (t === tabName) {
+                    btn.classList.add('active');
+                    content.classList.remove('hidden');
+                } else {
+                    btn.classList.remove('active');
+                    content.classList.add('hidden');
+                }
+            });
+
+            if (tabName === 'matrix') {
+                setViewMode('matrix');
+            }
+        }
+
+        function setViewMode(mode) {
+            state.viewMode = mode;
+            const singleBtn = document.getElementById('view-mode-single-btn');
+            const matrixBtn = document.getElementById('view-mode-matrix-btn');
+
+            if (mode === 'single') {
+                singleBtn.className = "px-3 py-1 text-xs font-medium bg-emerald-600 text-white rounded-md shadow-sm transition";
+                matrixBtn.className = "px-3 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 transition";
+            } else {
+                matrixBtn.className = "px-3 py-1 text-xs font-medium bg-emerald-600 text-white rounded-md shadow-sm transition";
+                singleBtn.className = "px-3 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 transition";
+            }
+            renderCanvas();
+        }
+
+        function updateUI() {
+            updateChartDropdown();
+            populateChartEditorForm();
+            populateBarTable();
+            populateSlotMappingControls();
+            renderCanvas();
+        }
+
+        function updateChartDropdown() {
+            const dropdown = document.getElementById('chart-select-dropdown');
+            dropdown.innerHTML = '';
+            state.charts.forEach((chart, index) => {
+                const opt = document.createElement('option');
+                opt.value = index;
+                opt.textContent = `${index + 1}. ${chart.title || 'Sense Títol'}`;
+                if (index === state.selectedChartIndex) opt.selected = true;
+                dropdown.appendChild(opt);
+            });
+
+            document.getElementById('chart-count-badge').textContent = `${state.charts.length} Gràfic${state.charts.length === 1 ? '' : 's'}`;
+            document.getElementById('matrix-badge-text').textContent = `${state.matrixSettings.rows}x${state.matrixSettings.cols}`;
+        }
+
+        function onSelectChart(index) {
+            state.selectedChartIndex = parseInt(index);
+            populateChartEditorForm();
+            populateBarTable();
+            renderCanvas();
+        }
+
+        function populateChartEditorForm() {
+            const chart = state.charts[state.selectedChartIndex];
+            if (!chart) return;
+
+            document.getElementById('chart-title-input').value = chart.title || '';
+            document.getElementById('chart-xlabel-input').value = chart.xAxisLabel || '';
+            document.getElementById('chart-ylabel-input').value = chart.yAxisLabel || '';
+            document.getElementById('chart-yauto-checkbox').checked = chart.yAuto;
+
+            const manualContainer = document.getElementById('manual-y-container');
+            if (chart.yAuto) {
+                manualContainer.classList.add('hidden');
+            } else {
+                manualContainer.classList.remove('hidden');
+            }
+
+            document.getElementById('chart-ymin-input').value = chart.yMin;
+            document.getElementById('chart-ymax-input').value = chart.yMax;
+            document.getElementById('chart-ystep-input').value = chart.yStep || '';
+        }
+
+        function updateChartMeta() {
+            const chart = state.charts[state.selectedChartIndex];
+            if (!chart) return;
+
+            chart.title = document.getElementById('chart-title-input').value;
+            chart.xAxisLabel = document.getElementById('chart-xlabel-input').value;
+            chart.yAxisLabel = document.getElementById('chart-ylabel-input').value;
+            chart.yMin = parseFloat(document.getElementById('chart-ymin-input').value) || 0;
+            chart.yMax = parseFloat(document.getElementById('chart-ymax-input').value) || 10;
+            chart.yStep = parseFloat(document.getElementById('chart-ystep-input').value) || null;
+
+            updateChartDropdown();
+            renderCanvas();
+        }
+
+        function toggleYAuto() {
+            const chart = state.charts[state.selectedChartIndex];
+            if (!chart) return;
+
+            chart.yAuto = document.getElementById('chart-yauto-checkbox').checked;
+            populateChartEditorForm();
+            renderCanvas();
+        }
+
+        function populateBarTable() {
+            const tbody = document.getElementById('bar-table-body');
+            tbody.innerHTML = '';
+            const chart = state.charts[state.selectedChartIndex];
+            if (!chart || !chart.bars) return;
+
+            chart.bars.forEach((bar, bIdx) => {
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-50 transition border-b border-slate-100";
+                tr.innerHTML = `
+                    <td class="py-1.5 px-2">
+                        <input type="text" value="${bar.label}" placeholder="Etiqueta..." oninput="updateBarRow(${bIdx}, 'label', this.value)" class="w-full text-xs p-1 rounded font-medium text-slate-800">
+                    </td>
+                    <td class="py-1.5 px-2">
+                        <input type="number" step="any" value="${bar.value}" oninput="updateBarRow(${bIdx}, 'value', this.value)" class="w-full text-xs p-1 rounded font-semibold text-slate-900">
+                    </td>
+                    <td class="py-1.5 px-2">
+                        <input type="number" step="any" value="${bar.sd}" oninput="updateBarRow(${bIdx}, 'sd', this.value)" class="w-full text-xs p-1 rounded text-emerald-700 font-semibold">
+                    </td>
+                    <td class="py-1.5 px-2 text-center">
+                        <input type="color" value="${bar.color || '#4472C4'}" onchange="updateBarRow(${bIdx}, 'color', this.value)" class="w-6 h-6 rounded cursor-pointer border border-slate-300">
+                    </td>
+                    <td class="py-1.5 px-1 text-center">
+                        <button onclick="removeBarRow(${bIdx})" title="Eliminar barra" class="text-slate-400 hover:text-rose-600 p-1 transition">
+                            <i class="fa-solid fa-xmark text-sm"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function updateBarRow(bIdx, field, val) {
+            const chart = state.charts[state.selectedChartIndex];
+            if (!chart || !chart.bars[bIdx]) return;
+
+            if (field === 'value' || field === 'sd') {
+                chart.bars[bIdx][field] = parseFloat(val) || 0;
+            } else {
+                chart.bars[bIdx][field] = val;
+            }
+            renderCanvas();
+        }
+
+        function addBarRow() {
+            const chart = state.charts[state.selectedChartIndex];
+            if (!chart) return;
+
+            const palette = PALETTES[chart.palette || 'office'];
+            const nextColor = palette[chart.bars.length % palette.length];
+
+            chart.bars.push({
+                label: `Barra ${chart.bars.length + 1}`,
+                value: 5.0,
+                sd: 0.5,
+                color: nextColor
+            });
+
+            populateBarTable();
+            renderCanvas();
+        }
+
+        function removeBarRow(bIdx) {
+            const chart = state.charts[state.selectedChartIndex];
+            if (!chart || chart.bars.length <= 1) {
+                showToast('Cada gràfic ha de tenir almenys una barra.');
+                return;
+            }
+            chart.bars.splice(bIdx, 1);
+            populateBarTable();
+            renderCanvas();
+        }
+
+        function createNewChart() {
+            const newIndex = state.charts.length + 1;
+            const newChart = {
+                id: `chart_${Date.now()}`,
+                title: `Gràfic ${newIndex}`,
+                xAxisLabel: 'Categories',
+                yAxisLabel: 'Valors',
+                yAuto: true,
+                yMin: 0,
+                yMax: 10,
+                yStep: 2,
+                palette: 'office',
+                bars: [
+                    { label: 'Control', value: 4.0, sd: 0.4, color: '#4472C4' },
+                    { label: 'Tractament', value: 8.0, sd: 0.6, color: '#ED7D31' }
+                ]
+            };
+            state.charts.push(newChart);
+            state.selectedChartIndex = state.charts.length - 1;
+            
+            if (state.matrixSettings.assignments.length < state.matrixSettings.rows * state.matrixSettings.cols) {
+                state.matrixSettings.assignments.push(state.selectedChartIndex);
+            }
+
+            updateUI();
+            showToast('Nou gràfic creat');
+        }
+
+        function duplicateCurrentChart() {
+            const current = state.charts[state.selectedChartIndex];
+            if (!current) return;
+
+            const cloned = JSON.parse(JSON.stringify(current));
+            cloned.id = `chart_${Date.now()}`;
+            cloned.title = `${current.title} (Còpia)`;
+
+            state.charts.push(cloned);
+            state.selectedChartIndex = state.charts.length - 1;
+            updateUI();
+            showToast('Gràfic duplicat');
+        }
+
+        function deleteCurrentChart() {
+            if (state.charts.length <= 1) {
+                showToast('Ha d\'haver almenys 1 gràfic al projecte.');
+                return;
+            }
+            state.charts.splice(state.selectedChartIndex, 1);
+            state.selectedChartIndex = Math.max(0, state.selectedChartIndex - 1);
+            updateUI();
+            showToast('Gràfic eliminat');
+        }
+
+        function applyPalette(paletteKey) {
+            const chart = state.charts[state.selectedChartIndex];
+            if (!chart) return;
+
+            chart.palette = paletteKey;
+            const colors = PALETTES[paletteKey];
+            chart.bars.forEach((bar, idx) => {
+                bar.color = colors[idx % colors.length];
+            });
+
+            populateBarTable();
+            renderCanvas();
+            showToast(`Paleta aplicada: ${paletteKey.toUpperCase()}`);
+        }
+
+        function updateErrorSettings() {
+            state.errorSettings.capWidth = parseFloat(document.getElementById('cap-width-slider').value);
+            state.errorSettings.lineWidth = parseFloat(document.getElementById('line-width-slider').value);
+            state.errorSettings.color = document.getElementById('error-color-mode').value;
+            state.errorSettings.style = document.getElementById('error-style-mode').value;
+
+            document.getElementById('cap-width-val').textContent = `${state.errorSettings.capWidth} px`;
+            document.getElementById('line-width-val').textContent = `${state.errorSettings.lineWidth} px`;
+
+            renderCanvas();
+        }
+
+        function updateVisualSettings() {
+            state.visualSettings.showGridlines = document.getElementById('show-gridlines-check').checked;
+            state.visualSettings.showBarValues = document.getElementById('show-values-check').checked;
+            renderCanvas();
+        }
+
+        function setMatrixGrid(rows, cols) {
+            state.matrixSettings.rows = rows;
+            state.matrixSettings.cols = cols;
+
+            const totalSlots = rows * cols;
+            state.matrixSettings.assignments = [];
+            for (let i = 0; i < totalSlots; i++) {
+                state.matrixSettings.assignments.push(i % Math.max(1, state.charts.length));
+            }
+
+            document.getElementById('matrix-badge-text').textContent = `${rows}x${cols}`;
+            populateSlotMappingControls();
+            renderCanvas();
+            showToast(`Matriz ajustada a ${rows}x${cols}`);
+        }
+
+        function updateMatrixSettings() {
+            state.matrixSettings.title = document.getElementById('matrix-title-input').value;
+            state.matrixSettings.subtitle = document.getElementById('matrix-subtitle-input').value;
+            renderCanvas();
+        }
+
+        function populateSlotMappingControls() {
+            const container = document.getElementById('slot-mapping-container');
+            container.innerHTML = '';
+
+            const totalSlots = state.matrixSettings.rows * state.matrixSettings.cols;
+            for (let i = 0; i < totalSlots; i++) {
+                const div = document.createElement('div');
+                div.className = "flex items-center justify-between text-xs bg-slate-50 p-2 rounded-lg border border-slate-200";
+
+                const assignedIdx = state.matrixSettings.assignments[i] ?? (i % Math.max(1, state.charts.length));
+
+                let optionsHTML = state.charts.map((c, idx) => 
+                    `<option value="${idx}" ${idx === assignedIdx ? 'selected' : ''}>${idx + 1}. ${c.title || 'Gràfic'}</option>`
+                ).join('');
+
+                div.innerHTML = `
+                    <span class="font-semibold text-slate-600">Posició ${i + 1} (${Math.floor(i / state.matrixSettings.cols) + 1}, ${(i % state.matrixSettings.cols) + 1}):</span>
+                    <select onchange="updateSlotAssignment(${i}, this.value)" class="bg-white border border-slate-300 rounded p-1 text-xs">
+                        ${optionsHTML}
+                    </select>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function updateSlotAssignment(slotIdx, chartIdx) {
+            state.matrixSettings.assignments[slotIdx] = parseInt(chartIdx);
+            renderCanvas();
+        }
+
+        function calculateTicks(minVal, maxVal, userStep) {
+            if (userStep && userStep > 0) {
+                let ticks = [];
+                for (let v = minVal; v <= maxVal + 1e-6; v += userStep) {
+                    ticks.push(Number(v.toFixed(4)));
+                }
+                return ticks;
+            }
+
+            const range = maxVal - minVal;
+            if (range <= 0) return [0, 10];
+
+            const roughStep = range / 5;
+            const magnitude = Math.pow(10, Math.floor(Math.log10(roughStep)));
+            const residual = roughStep / magnitude;
+
+            let step;
+            if (residual < 1.5) step = 1 * magnitude;
+            else if (residual < 3) step = 2 * magnitude;
+            else if (residual < 7) step = 5 * magnitude;
+            else step = 10 * magnitude;
+
+            const niceMin = Math.floor(minVal / step) * step;
+            const niceMax = Math.ceil(maxVal / step) * step;
+
+            let ticks = [];
+            for (let v = niceMin; v <= niceMax + step * 0.01; v += step) {
+                ticks.push(Number(v.toFixed(4)));
+            }
+            return ticks;
+        }
+
+        function renderCanvas() {
+            const canvas = document.getElementById('mainChartCanvas');
+            const ctx = canvas.getContext('2d');
+            const scale = parseFloat(document.getElementById('export-res-select')?.value || 2);
+
+            let renderWidth, renderHeight;
+
+            if (state.viewMode === 'single') {
+                renderWidth = 720;
+                renderHeight = 520;
+                
+                canvas.width = renderWidth * scale;
+                canvas.height = renderHeight * scale;
+                canvas.style.width = `${renderWidth}px`;
+                canvas.style.height = `${renderHeight}px`;
+
+                ctx.save();
+                ctx.scale(scale, scale);
+
+                // Background
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, renderWidth, renderHeight);
+
+                const currentChart = state.charts[state.selectedChartIndex];
+                if (currentChart) {
+                    drawExcelSubchart(ctx, currentChart, 20, 20, renderWidth - 40, renderHeight - 40);
+                } else {
+                    ctx.fillStyle = "#94a3b8";
+                    ctx.font = `14px ${state.visualSettings.fontFamily}`;
+                    ctx.textAlign = "center";
+                    ctx.fillText("No hi ha cap gràfic creat. Fes clic a 'Nou Gràfic'.", renderWidth / 2, renderHeight / 2);
+                }
+                ctx.restore();
+
+            } else {
+                // MATRIX VIEW
+                const rows = state.matrixSettings.rows;
+                const cols = state.matrixSettings.cols;
+                const subW = 380;
+                const subH = 290;
+                const spacing = state.matrixSettings.spacing;
+                const padding = state.matrixSettings.padding;
+
+                const headerHeight = state.matrixSettings.title ? 80 : 30;
+                const footerHeight = state.matrixSettings.subtitle ? 40 : 20;
+
+                renderWidth = padding * 2 + cols * subW + (cols - 1) * spacing;
+                renderHeight = headerHeight + padding + rows * subH + (rows - 1) * spacing + footerHeight;
+
+                canvas.width = renderWidth * scale;
+                canvas.height = renderHeight * scale;
+                canvas.style.width = `${renderWidth}px`;
+                canvas.style.height = `${renderHeight}px`;
+
+                ctx.save();
+                ctx.scale(scale, scale);
+
+                // Background
+                ctx.fillStyle = state.matrixSettings.bgColor || "#ffffff";
+                ctx.fillRect(0, 0, renderWidth, renderHeight);
+
+                // Draw Overall Figure Title
+                if (state.matrixSettings.title) {
+                    ctx.fillStyle = "#0f172a";
+                    ctx.font = `bold 20px ${state.visualSettings.fontFamily}`;
+                    ctx.textAlign = "center";
+                    ctx.fillText(state.matrixSettings.title, renderWidth / 2, padding + 10);
+                }
+
+                // Render each subplot cell
+                for (let r = 0; r < rows; r++) {
+                    for (let c = 0; c < cols; c++) {
+                        const slotIdx = r * cols + c;
+                        const chartIdx = state.matrixSettings.assignments[slotIdx] ?? (slotIdx % Math.max(1, state.charts.length));
+                        const chartData = state.charts[chartIdx];
+
+                        const posX = padding + c * (subW + spacing);
+                        const posY = headerHeight + padding + r * (subH + spacing);
+
+                        if (chartData) {
+                            drawExcelSubchart(ctx, chartData, posX, posY, subW, subH);
+                        }
+                    }
+                }
+
+                // Draw Figure Subtitle/Legend Footer
+                if (state.matrixSettings.subtitle) {
+                    ctx.fillStyle = "#64748b";
+                    ctx.font = `italic 12px ${state.visualSettings.fontFamily}`;
+                    ctx.textAlign = "center";
+                    ctx.fillText(state.matrixSettings.subtitle, renderWidth / 2, renderHeight - 20);
+                }
+
+                ctx.restore();
+            }
+
+            document.getElementById('canvas-dimensions-label').textContent = `Mida del Canvas: ${canvas.width} x ${canvas.height} px`;
+        }
+
+        function drawExcelSubchart(ctx, chart, x, y, width, height) {
+            ctx.save();
+
+            // Calculate chart bounds
+            const titleHeight = 30;
+            const xLabelHeight = chart.xAxisLabel ? 25 : 15;
+            const yLabelWidth = chart.yAxisLabel ? 35 : 20;
+            const leftMargin = 55 + yLabelWidth;
+            const rightMargin = 20;
+            const topMargin = titleHeight + 10;
+            const bottomMargin = 45 + xLabelHeight;
+
+            const plotX = x + leftMargin;
+            const plotY = y + topMargin;
+            const plotW = width - leftMargin - rightMargin;
+            const plotH = height - topMargin - bottomMargin;
+
+            // Draw Chart Title
+            ctx.fillStyle = "#1e293b";
+            ctx.font = `bold 14px ${state.visualSettings.fontFamily}`;
+            ctx.textAlign = "center";
+            ctx.fillText(chart.title || '', x + width / 2, y + 18);
+
+            // Determine Y limits
+            let yMin = chart.yMin;
+            let yMax = chart.yMax;
+
+            if (chart.yAuto) {
+                let maxVal = -Infinity;
+                let minVal = Infinity;
+                (chart.bars || []).forEach(b => {
+                    const top = b.value + (b.sd || 0);
+                    const bot = b.value - (b.sd || 0);
+                    if (top > maxVal) maxVal = top;
+                    if (bot < minVal) minVal = bot;
+                });
+                if (minVal > 0 || minVal === Infinity) minVal = 0;
+                if (maxVal === -Infinity) maxVal = 10;
+                maxVal = maxVal * 1.15;
+
+                yMin = 0;
+                yMax = maxVal;
+            }
+
+            const ticks = calculateTicks(yMin, yMax, chart.yStep);
+            const actualYMin = ticks[0];
+            const actualYMax = ticks[ticks.length - 1];
+
+            function valToY(v) {
+                const ratio = (v - actualYMin) / (actualYMax - actualYMin || 1);
+                return plotY + plotH - ratio * plotH;
+            }
+
+            // Draw Horizontal Gridlines
+            if (state.visualSettings.showGridlines) {
+                ctx.strokeStyle = "#e2e8f0";
+                ctx.lineWidth = 1;
+                ticks.forEach(tick => {
+                    const ty = valToY(tick);
+                    ctx.beginPath();
+                    ctx.moveTo(plotX, ty);
+                    ctx.lineTo(plotX + plotW, ty);
+                    ctx.stroke();
+                });
+            }
+
+            // Draw Y-Axis Ticks & Labels
+            ctx.fillStyle = "#64748b";
+            ctx.font = `11px ${state.visualSettings.fontFamily}`;
+            ctx.textAlign = "right";
+            ctx.textBaseline = "middle";
+
+            ticks.forEach(tick => {
+                const ty = valToY(tick);
+                ctx.fillText(tick.toString(), plotX - 8, ty);
+
+                ctx.strokeStyle = "#cbd5e1";
+                ctx.beginPath();
+                ctx.moveTo(plotX - 4, ty);
+                ctx.lineTo(plotX, ty);
+                ctx.stroke();
+            });
+
+            // Draw Y-Axis Title (Rotated -90 deg)
+            if (chart.yAxisLabel) {
+                ctx.save();
+                ctx.translate(x + 15, plotY + plotH / 2);
+                ctx.rotate(-Math.PI / 2);
+                ctx.fillStyle = "#334155";
+                ctx.font = `bold 11px ${state.visualSettings.fontFamily}`;
+                ctx.textAlign = "center";
+                ctx.fillText(chart.yAxisLabel, 0, 0);
+                ctx.restore();
+            }
+
+            // Draw Main Axes Lines
+            ctx.strokeStyle = "#94a3b8";
+            ctx.lineWidth = 1.2;
+            
+            // Y Axis line
+            ctx.beginPath();
+            ctx.moveTo(plotX, plotY);
+            ctx.lineTo(plotX, plotY + plotH);
+            ctx.stroke();
+
+            // Baseline X Axis
+            const baselineY = valToY(0);
+            ctx.beginPath();
+            ctx.moveTo(plotX, baselineY);
+            ctx.lineTo(plotX + plotW, baselineY);
+            ctx.stroke();
+
+            // Draw Bars and Error Bars
+            const numBars = chart.bars ? chart.bars.length : 0;
+            if (numBars > 0) {
+                const groupWidth = plotW;
+                const barGapRatio = 0.35;
+                const totalBarSpace = groupWidth / numBars;
+                const barWidth = totalBarSpace * (1 - barGapRatio);
+                const barPadding = (totalBarSpace * barGapRatio) / 2;
+
+                chart.bars.forEach((bar, i) => {
+                    const barX = plotX + i * totalBarSpace + barPadding;
+                    const valY = valToY(bar.value);
+                    const zeroY = baselineY;
+
+                    const barH = Math.abs(zeroY - valY);
+                    const topY = Math.min(valY, zeroY);
+
+                    // Render Excel Bar Rectangle
+                    ctx.fillStyle = bar.color || '#4472C4';
+                    ctx.fillRect(barX, topY, barWidth, barH);
+
+                    // Fine border stroke around bar
+                    ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
+                    ctx.lineWidth = 1;
+                    ctx.strokeRect(barX, topY, barWidth, barH);
+
+                    // Draw Value label above bar if enabled
+                    if (state.visualSettings.showBarValues) {
+                        ctx.fillStyle = "#0f172a";
+                        ctx.font = `10px ${state.visualSettings.fontFamily}`;
+                        ctx.textAlign = "center";
+                        ctx.fillText(bar.value.toString(), barX + barWidth / 2, valY - (bar.sd ? 12 : 5));
+                    }
+
+                    if (bar.sd && bar.sd > 0) {
+                        const centerX = barX + barWidth / 2;
+                        const errorTopY = valToY(bar.value + bar.sd);
+                        const errorBotY = valToY(bar.value - bar.sd);
+                        const capW = state.errorSettings.capWidth / 2;
+
+                        let errorColor = state.errorSettings.color;
+                        if (errorColor === 'match') errorColor = bar.color || '#000000';
+
+                        ctx.strokeStyle = errorColor;
+                        ctx.lineWidth = state.errorSettings.lineWidth;
+
+                        // Vertical error line
+                        ctx.beginPath();
+                        if (state.errorSettings.style === 'top') {
+                            ctx.moveTo(centerX, valY);
+                            ctx.lineTo(centerX, errorTopY);
+                        } else {
+                            ctx.moveTo(centerX, errorBotY);
+                            ctx.lineTo(centerX, errorTopY);
+                        }
+                        ctx.stroke();
+
+                        // Top T-Cap
+                        ctx.beginPath();
+                        ctx.moveTo(centerX - capW, errorTopY);
+                        ctx.lineTo(centerX + capW, errorTopY);
+                        ctx.stroke();
+
+                        // Bottom T-Cap
+                        if (state.errorSettings.style === 'both') {
+                            ctx.beginPath();
+                            ctx.moveTo(centerX - capW, errorBotY);
+                            ctx.lineTo(centerX + capW, errorBotY);
+                            ctx.stroke();
+                        }
+                    }
+
+                    // Category X Label below baseline
+                    ctx.fillStyle = "#334155";
+                    ctx.font = `11px ${state.visualSettings.fontFamily}`;
+                    ctx.textAlign = "center";
+                    ctx.textBaseline = "top";
+                    ctx.fillText(bar.label, barX + barWidth / 2, plotY + plotH + 8);
+                });
+            }
+
+            // Draw X-Axis Title
+            if (chart.xAxisLabel) {
+                ctx.fillStyle = "#1e293b";
+                ctx.font = `bold 11px ${state.visualSettings.fontFamily}`;
+                ctx.textAlign = "center";
+                ctx.textBaseline = "bottom";
+                ctx.fillText(chart.xAxisLabel, plotX + plotW / 2, y + height - 5);
+            }
+
+            ctx.restore();
+        }
+
+        function exportCanvasImage(format = 'png') {
+            const canvas = document.getElementById('mainChartCanvas');
+            const dataURL = canvas.toDataURL(`image/${format}`, 1.0);
+            
+            const a = document.createElement('a');
+            const filename = state.viewMode === 'single'
+                ? `${state.charts[state.selectedChartIndex]?.title || 'grafic'}_SCTOOLS.${format}`
+                : `Matriu_Grafics_SCTOOLS.${format}`;
+
+            a.href = dataURL;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            showToast(`Imatges exportades en PNG amb èxit`);
+        }
+
+        function exportJSONProject() {
+            const jsonStr = JSON.stringify(state, null, 2);
+            const blob = new Blob([jsonStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `Projecte_SCTOOLS_${Date.now()}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast('Projecte desat en fitxer JSON');
+        }
+
+        function importJSONProject(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedState = JSON.parse(e.target.result);
+                    if (importedState.charts && Array.isArray(importedState.charts)) {
+                        Object.assign(state, importedState);
+                        updateUI();
+                        showToast('Projecte carregat correctament');
+                    } else {
+                        showToast('El fitxer JSON no té un format vàlid.');
+                    }
+                } catch (err) {
+                    showToast('Error en llegir el fitxer JSON.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        // Sistema de notificacions Toast
+        function showToast(msg) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = "bg-slate-900 text-white text-xs font-semibold px-4 py-2.5 rounded-lg shadow-xl mb-2 flex items-center gap-2 border border-slate-700";
+            toast.innerHTML = `<i class="fa-solid fa-circle-check text-emerald-400"></i> ${msg}`;
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 2500);
+        }
+
+        window.onload = function() {
+            initEmptyProject();
+        };
+    </script>
+</body>
+</html>
